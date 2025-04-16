@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  micromobility-app
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+
+Resources:
+
+  SnapshotGetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: snapshot-get/
+      Handler: app.lambdaHandler
+      Events:
+        Snapshot:
+          Type: Api
+          Properties:
+            Path: /snapshot
+            Method: get
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref SnapshotBucket
+      Policies:
+          - S3ReadPolicy:
+              BucketName: !Ref SnapshotBucket
+          - Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+          - app.ts
+
+  # 🗃️ DynamoDB Table
+  MicromobilityDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: MicromobilityData
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  # 🪣 S3 Bucket for JSON Snapshots
+  SnapshotBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub micromobility-snapshots
+      VersioningConfiguration:
+        Status: Enabled
+
+  # ⏱️ Lambda Function
+  SnapshotProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: snapshot-processor/
+      Handler: app.lambdaHandler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MicromobilityDataTable
+          BUCKET_NAME: !Ref SnapshotBucket
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref SnapshotBucket
+        - S3ReadPolicy:
+            BucketName: !Ref SnapshotBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MicromobilityDataTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+          - app.ts
+
+  HourlySnapshotSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: hourly-snapshot-schedule
+      ScheduleExpression: cron(0 * * * ? *)
+      ScheduleExpressionTimezone: America/New_York
+      StartDate: "2025-04-14T22:00:00.000Z"
+      FlexibleTimeWindow:
+        Mode: 'OFF'
+      Target:
+        Arn: !GetAtt SnapshotProcessorFunction.Arn
+        RoleArn: !GetAtt SchedulerInvokeRole.Arn
+
+  SchedulerInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowInvokeLambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt SnapshotProcessorFunction.Arn
+
+Outputs:
+  SnapshotApi:
+    Description: "API Gateway endpoint URL for Prod stage snapshot endpoints"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/snapshot/"
+  SnapshotGetFunction:
+    Description: "SnapshotGet Lambda Function ARN"
+    Value: !GetAtt SnapshotGetFunction.Arn
+  SnapshotGetFunctionIamRole:
+    Description: "Implicit IAM Role created for SnapshotGet function"
+    Value: !GetAtt SnapshotGetFunctionRole.Arn
+
+  SnapshotBucketName:
+    Description: "S3 bucket for storing snapshot JSONs"
+    Value: !Ref SnapshotBucket
+
+  MicromobilityDataTableName:
+    Description: "DynamoDB table for zone/timestamp data"
+    Value: !Ref MicromobilityDataTable
+
+  SnapshotProcessorFunctionArn:
+    Description: "Lambda that fetches, processes, and stores snapshots"
+    Value: !GetAtt SnapshotProcessorFunction.Arn
