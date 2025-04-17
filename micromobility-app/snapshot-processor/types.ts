@@ -13,3 +13,5 @@ export interface LimeApiResponse {
         bikes: LimeVehicle[];
     };
 }
+
+export type ZoneType = '1000m' | '300m';

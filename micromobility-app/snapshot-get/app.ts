@@ -8,6 +8,7 @@ import {
     S3Client,
 } from '@aws-sdk/client-s3';
 import { addDays, formatDate } from 'date-fns';
+import { ZoneType } from '../snapshot-processor/types';
 
 const s3 = new S3Client({});
 
@@ -18,7 +19,9 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     let startDate: string | undefined = event?.queryStringParameters?.startDate;
     const endDate: string | undefined = event?.queryStringParameters?.endDate;
 
-    if (!startDate) {
+    const zoneType: ZoneType = event?.queryStringParameters?.zoneType as ZoneType;
+
+    if (!startDate || !zoneType) {
         return {
             statusCode: 400,
             headers: {
@@ -51,7 +54,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
         data = results.flatMap((d) => d?.Contents ?? []);
 
-        const files = data.map((obj) => obj.Key).filter((key) => key?.endsWith('.json'));
+        const files = data.map((obj) => obj.Key).filter((key) => key?.endsWith(`${zoneType}.json`));
 
         console.log(files);
 

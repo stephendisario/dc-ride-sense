@@ -1,45 +1,23 @@
 import { Feature, FeatureCollection } from "geojson";
-import { GeoJSONFeature, Map } from "mapbox-gl";
+import { GeoJSONFeature } from "mapbox-gl";
 import { MapRef } from "react-map-gl/mapbox";
 
 export const getHour = (date: string) => {
   return date.slice(11, 13);
 };
 
-// export const updateGeoJsonWithSnapshot = (
-//   baseGeoJson: FeatureCollection,
-//   snapshotData: Record<string, number>
-// ): GeoJSON.FeatureCollection => {
-//   return {
-//     ...baseGeoJson,
-//     features: baseGeoJson.features.map((feature) => {
-//       const zoneId = feature.properties?.id;
-//       const count = snapshotData[zoneId] || 0;
-
-//       return {
-//         ...feature,
-//         properties: {
-//           ...feature.properties,
-//           count,
-//         },
-//       };
-//     }),
-//   };
-// };
-
 export const updateCounts = (
   zonesData: FeatureCollection,
   data: Snapshot,
   timestamp: string,
-  map: MapRef
+  map: MapRef,
+  zonesId: string
 ) => {
   zonesData.features.forEach((feature: Feature) => {
     const id = feature.id!;
-    if (data[timestamp][id]) {
-      map?.setFeatureState({ source: "zones", id: feature.id } as GeoJSONFeature, {
-        count: data[timestamp][id] ?? 0,
-      });
-    }
+    map?.setFeatureState({ source: zonesId, id: feature.id } as GeoJSONFeature, {
+      count: data[timestamp][id] ?? 0,
+    });
   });
 };
 
