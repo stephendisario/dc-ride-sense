@@ -1,6 +1,7 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "react-day-picker/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const geistSans = Geist({

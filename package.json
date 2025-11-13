@@ -10,6 +10,11 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\" \"micromobility-app/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-regular-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.0",
     "@headlessui/react": "^2.2.9",
     "@tanstack/react-query": "^5.74.3",
     "@turf/bbox": "^7.2.0",

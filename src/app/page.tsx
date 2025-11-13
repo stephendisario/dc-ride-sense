@@ -8,14 +8,12 @@ import {
   INITIAL_CENTER,
   INITIAL_ZOOM,
   METRO_STATION_SOURCE_ID,
-  METRO_STATION_SOURCE_URL
+  METRO_STATION_SOURCE_URL,
 } from "../lib/constants";
 import { H3_9_LAYER_STYLE, METRO_STATION_LAYER_STYLE } from "../lib/layerStyles";
 import Header from "../components/Header";
-import DatePicker from "../components/DatePicker";
-import { useUpdateMapStyleOnChange } from "@/map/map-config";
 import { useView } from "@/stores/views";
-import Controls from "@/components/Controls";
+import ControlBox from "../components/ControlBox";
 
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -23,9 +21,7 @@ const App = () => {
   const mapRef = useRef<MapboxMap | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const { setIsMapLoading } = useView();
-
-  useUpdateMapStyleOnChange(mapRef.current);
+  const { setMap } = useView();
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -54,22 +50,20 @@ const App = () => {
       map.addLayer(H3_9_LAYER_STYLE);
       map.addLayer(METRO_STATION_LAYER_STYLE);
 
-      setIsMapLoading(false);
+      mapRef.current = map;
+      setMap(mapRef.current);
     });
-
-    mapRef.current = map;
 
     return () => {
       map.remove();
     };
-  }, [setIsMapLoading]);
+  }, []);
 
   return (
     <>
       <div className="h-screen w-screen" id="map-container" ref={mapContainerRef} />
       <Header />
-      <DatePicker />
-      <Controls />
+      <ControlBox />
     </>
   );
 };

@@ -1,4 +1,5 @@
 import { subDays } from "date-fns";
+import { Map } from "mapbox-gl";
 import { create } from "zustand";
 
 export enum HexLayerType {
@@ -16,6 +17,10 @@ type ViewState = {
   setIsMapLoading: (l: boolean) => void;
   activeHexLayer: HexLayerType;
   setActiveHexLayer: (layerId: HexLayerType) => void;
+  interestingHours: number[];
+  setInterestingHours: (hours: number[]) => void;
+  map: Map | null;
+  setMap: (map: Map) => void;
 };
 
 export const useView = create<ViewState>((set) => ({
@@ -29,4 +34,8 @@ export const useView = create<ViewState>((set) => ({
   setIsMapLoading: (isMapLoading) => set({ isMapLoading }),
   activeHexLayer: HexLayerType.DELTA,
   setActiveHexLayer: (activeHexLayer) => set({ activeHexLayer }),
+  interestingHours: [],
+  setInterestingHours: (hours) => set({ interestingHours: hours }),
+  map: null,
+  setMap: (map) => set({ map }),
 }));

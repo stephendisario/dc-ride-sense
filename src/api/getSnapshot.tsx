@@ -9,6 +9,8 @@ const getSnapshots = async (dateString: string, zoneType: ZoneType): Promise<Sna
   );
   if (!res.ok) throw new Error("Failed to fetch snapshots");
   const data: Snapshot = await res.json();
+  const test = sortSnapshotTimestamps(data);
+  console.log(Object.values(test).map((cur) => Object.values(cur).reduce((a, c) => a + c, 0)));
   return sortSnapshotTimestamps(data);
 };
 
