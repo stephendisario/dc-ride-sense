@@ -1,0 +1,14 @@
+{
+  "files.watcherExclude": {
+    "**/public/**/*.geojson": true,
+    "**/public/**/*.json":     true
+  },
+  "search.exclude": {
+    "**/public/**/*.geojson": true,
+    "**/dapublicta/**/*.json":     true
+  },
+  "files.exclude": {
+    "**/public/**/*.geojson": true,
+    "**/public/**/*.json":     true
+  }
+}

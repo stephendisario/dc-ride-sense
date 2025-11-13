@@ -16,12 +16,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     //TODO: env var
     const bucketName = 'micromobility-snapshots';
 
-    let startDate: string | undefined = event?.queryStringParameters?.startDate;
-    const endDate: string | undefined = event?.queryStringParameters?.endDate;
+    let dateString: string | undefined = event?.queryStringParameters?.dateString;
 
-    const zoneType: ZoneType = event?.queryStringParameters?.zoneType as ZoneType;
+    const zoneType: ZoneType | undefined = event?.queryStringParameters?.zoneType as ZoneType;
 
-    if (!startDate || !zoneType) {
+    if (!dateString || !zoneType) {
         return {
             statusCode: 400,
             headers: {
@@ -34,46 +33,42 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         };
     }
 
-    let data: _Object[] = [];
-    let promiseArray: Promise<ListObjectsV2CommandOutput>[] = [];
-
     try {
-        while (endDate && startDate <= endDate) {
-            console.log(startDate, endDate);
-            const { year, month, day } = parseDateString(startDate);
-            const listCommand = new ListObjectsV2Command({
-                Bucket: bucketName,
-                Prefix: `${year}/${month}/${day}`,
-            });
+        //get list of files for given day
+        const { year, month, day } = parseDateString(dateString);
+        const listCommand = new ListObjectsV2Command({
+            Bucket: bucketName,
+            Prefix: `${year}/${month}/${day}`,
+        });
+        const results = await s3.send(listCommand);
 
-            promiseArray.push(s3.send(listCommand));
-            startDate = formatDate(addDays(startDate!, 1), 'yyyy-MM-dd');
-        }
-
-        const results = await Promise.all(promiseArray);
-
-        data = results.flatMap((d) => d?.Contents ?? []);
-
-        const files = data.map((obj) => obj.Key).filter((key) => key?.endsWith(`${zoneType}.json`));
-
+        //filter for files with zoneType
+        const files = (results?.Contents ?? [])
+            .map((obj) => obj.Key)
+            .filter((key) => key?.endsWith(`${zoneType}.json`));
         console.log(files);
 
         const mergedData: Record<string, any> = {};
 
+        //get contents of each snapshot, merge into one json
         await Promise.all(
             files.map(async (key) => {
-                const getObject = await s3.send(
-                    new GetObjectCommand({
-                        Bucket: bucketName,
-                        Key: key,
-                    }),
-                );
+                try {
+                    const getObject = await s3.send(
+                        new GetObjectCommand({
+                            Bucket: bucketName,
+                            Key: key,
+                        }),
+                    );
 
-                const body = await getObject.Body?.transformToString();
-                const json = JSON.parse(body ?? '');
+                    const body = await getObject.Body?.transformToString();
+                    const json = JSON.parse(body ?? '');
 
-                for (const [timestamp, data] of Object.entries(json)) {
-                    mergedData[timestamp] = data;
+                    for (const [timestamp, data] of Object.entries(json)) {
+                        mergedData[timestamp] = data;
+                    }
+                } catch (e) {
+                    console.log(e);
                 }
             }),
         );
@@ -81,8 +76,8 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         return {
             statusCode: 200,
             headers: {
-                'Access-Control-Allow-Origin': '*', // or your frontend URL
-                'Access-Control-Allow-Headers': '*', // or list specific headers
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
             },
             body: JSON.stringify(mergedData),
         };

@@ -15,13 +15,18 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.788.0",
     "@aws-sdk/client-s3": "^3.787.0",
+    "@aws-sdk/client-sqs": "^3.854.0",
     "@aws-sdk/lib-dynamodb": "^3.788.0",
+    "@turf/boolean-intersects": "^7.2.0",
     "@turf/boolean-point-in-polygon": "^7.2.0",
+    "@turf/buffer": "^7.2.0",
     "@turf/geojson-rbush": "^7.2.0",
     "@turf/helpers": "^7.2.0",
+    "@turf/nearest-point-on-line": "^7.2.0",
     "axios": "^1.8.4",
     "date-fns": "^4.1.0",
-    "esbuild": "^0.14.14"
+    "esbuild": "^0.14.14",
+    "geojson": "^0.5.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.2.0",

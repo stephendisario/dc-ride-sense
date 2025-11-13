@@ -4,9 +4,7 @@ type Snapshot = {
     };
   };
 
-type ZoneType = "1000m" | "300m"
+type ActiveLayer =  {fc: any, source: 'grid-source' | 'road-block-source' | 'dc-h3', layer: any, zoneType: ZoneType}
 
-declare module '*.geojson' {
-  const value: any;
-  export default value;
-}
+declare module "*.geojson";
+declare module "*.json";

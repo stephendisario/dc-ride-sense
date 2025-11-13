@@ -5,7 +5,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 60
     Runtime: nodejs22.x
     Architectures:
       - x86_64
@@ -62,19 +62,60 @@ Resources:
         - AttributeName: sk
           KeyType: RANGE
 
-  # 🪣 S3 Bucket for JSON Snapshots
   SnapshotBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub micromobility-snapshots
       VersioningConfiguration:
         Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [GET]
+            AllowedOrigins: 
+              - http://localhost:3000
+            AllowedHeaders:
+              - Origin
+              - Access-Control-Request-Method
+              - Access-Control-Request-Headers
+              - Range
+              - If-Modified-Since
+              - If-None-Match
+            ExposedHeaders:
+              - Accept-Ranges
+              - Content-Length
+              - Content-Range
+              - ETag
+              - Last-Modified
+            MaxAge: 86400
+
+  SnapshotBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SnapshotBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowPublicRead
+            Effect: Allow
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Sub "${SnapshotBucket.Arn}/*"
 
   # ⏱️ Lambda Function
   SnapshotProcessorFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: snapshot-processor/
+      MemorySize: 1024
       Handler: app.lambdaHandler
       Environment:
         Variables:
@@ -135,6 +176,49 @@ Resources:
                 Action: lambda:InvokeFunction
                 Resource: !GetAtt SnapshotProcessorFunction.Arn
 
+  SnapshotBackfillQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: snapshot-backfill-queue
+      VisibilityTimeout: 900 
+
+  SnapshotBackfillFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: snapshot-backfill-function
+      CodeUri: snapshot-backfill/
+      Handler: app.lambdaHandler
+      Timeout: 900
+      MemorySize: 1024
+      ReservedConcurrentExecutions: 100
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref SnapshotBucket
+        - S3ReadPolicy:
+            BucketName: !Ref SnapshotBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+      Events:
+        BackfillQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SnapshotBackfillQueue.Arn
+            BatchSize: 5
+            Enabled: true
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+          - app.ts
+
 Outputs:
   SnapshotApi:
     Description: "API Gateway endpoint URL for Prod stage snapshot endpoints"
@@ -157,3 +241,7 @@ Outputs:
   SnapshotProcessorFunctionArn:
     Description: "Lambda that fetches, processes, and stores snapshots"
     Value: !GetAtt SnapshotProcessorFunction.Arn
+
+  SnapshotBackfillQueueUrl:
+    Description: "SQS queue for snapshot backfill"
+    Value: !Ref SnapshotBackfillQueue
