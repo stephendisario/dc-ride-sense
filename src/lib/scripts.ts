@@ -10,17 +10,17 @@ const createh3Layer = () => {
   const cells = polygonToCells(dc.features[0].geometry.coordinates[0], RES, true);
 
   const features = cells.map((h3) => {
-    const ring = cellToBoundary(h3, true); // [[lat,lng],...] (geo order)
+    const ring = cellToBoundary(h3, true);
     return {
       type: "Feature",
-      id: h3, // important for feature-state
+      id: h3,
       properties: { h3 },
       geometry: { type: "Polygon", coordinates: [ring] },
     };
   });
 
   fs.writeFileSync(
-    "./dc-h3-res10.json",
+    "./h3-9.json",
     JSON.stringify({
       type: "FeatureCollection",
       features,

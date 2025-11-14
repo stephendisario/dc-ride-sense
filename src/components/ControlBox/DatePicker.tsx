@@ -6,6 +6,7 @@ import {
   subDays,
   startOfMonth,
   isSameMonth,
+  isSameDay,
   startOfDay,
   getMonth,
   format,
@@ -18,6 +19,13 @@ import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons
 const START = new Date(2025, 4, 1);
 const YESTERDAY = subDays(startOfDay(new Date()), 1);
 const END = YESTERDAY;
+
+const DISABLED_DAYS = [
+  new Date(2025, 6, 26),
+  new Date(2025, 9, 20),
+  new Date(2025, 10, 13),
+  new Date(2025, 10, 14),
+];
 
 export default function DatePicker() {
   const { date, setDate } = useView();
@@ -36,10 +44,19 @@ export default function DatePicker() {
     setMonth(d);
   };
 
+  const isDisabledDate = (d: Date) => DISABLED_DAYS.some((disabled) => isSameDay(disabled, d));
+
   const stepDay = (dir: "up" | "down") => {
-    const next = dir === "up" ? addDays(date, 1) : subDays(date, 1);
+    let next = dir === "up" ? addDays(date, 1) : subDays(date, 1);
+
+    if (isDisabledDate(next)) {
+      next = dir === "up" ? addDays(next, 1) : subDays(next, 1);
+    }
+
     setDate(next);
-    if (!isSameMonth(next, month)) setMonth(startOfMonth(next));
+    if (!isSameMonth(next, month)) {
+      setMonth(startOfMonth(next));
+    }
   };
 
   return (
@@ -53,7 +70,7 @@ export default function DatePicker() {
         onSelect={handleDayPickerSelect}
         month={month}
         onMonthChange={handleDayPickerMonth}
-        disabled={[{ before: START }, { after: END }]}
+        disabled={[{ before: START }, { after: END }, ...DISABLED_DAYS]}
         modifiersClassNames={{
           disabled: "opacity-40 cursor-not-allowed gray",
         }}

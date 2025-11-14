@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useGetSnapshots } from "@/api/getSnapshot";
-import { ZoneType } from "@/lib/types";
+import { Providers, ZoneType } from "@shared/types";
 import { useView } from "@/stores/views";
 import { format } from "date-fns";
-import { computeHourScore, deltaForHour } from "@/lib/helper";
+import { computeHourScore, getMetricByZone } from "@/lib/helper";
 
 export const useInterestingHours = () => {
   const { setInterestingHours, date } = useView();
@@ -13,9 +13,11 @@ export const useInterestingHours = () => {
     if (!bundle) return;
 
     const scores: { hour: number; score: number }[] = [];
+    const timestamps = Object.keys(bundle);
 
     for (let h = 1; h < 24; h++) {
-      const delta = deltaForHour(bundle, h);
+      const timestamp = timestamps[h];
+      const delta = getMetricByZone(bundle[timestamp], Providers.TOTAL, "delta");
 
       if (!delta || Object.keys(delta).length === 0) {
         scores.push({ hour: h, score: 0 });

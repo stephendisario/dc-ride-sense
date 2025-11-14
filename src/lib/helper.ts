@@ -1,63 +1,59 @@
 import { ExpressionSpecification, Map } from "mapbox-gl";
 import { H3_9_LAYER_ID } from "./constants";
+import { Providers, Snapshot, TimestampSnapshot, ZoneMetrics } from "@shared/types";
+
+export const getMetricByZone = (
+  snapshot: Snapshot,
+  provider: Providers,
+  metric: keyof ZoneMetrics
+): Record<string, number> => {
+  const providerZones = snapshot?.[provider] ?? {};
+  const result: Record<string, number> = {};
+
+  for (const [zoneId, metrics] of Object.entries(providerZones)) {
+    result[zoneId] = metrics[metric];
+  }
+
+  return result;
+};
 
 export const getHour = (date: string) => {
   return date.slice(11, 13);
 };
 
-export const getSnapshotTimestamp = (value: number, snapshot: Snapshot) => {
+export const getSnapshotTimestamp = (value: number, snapshot: TimestampSnapshot) => {
   const timestamps = Object.keys(snapshot);
 
   return timestamps[value];
 };
 
-export const sortSnapshotTimestamps = (obj: Snapshot) => {
+export const sortSnapshotTimestamps = (obj: TimestampSnapshot) => {
   return Object.keys(obj)
     .sort()
-    .reduce((result: Snapshot, key) => {
+    .reduce((result: TimestampSnapshot, key) => {
       result[key] = obj[key];
       return result;
     }, {});
 };
-
-export function deltaForHour(bundle: Record<string, Record<string, number>>, hour: number) {
-  const tsNow = getSnapshotTimestamp(hour, bundle);
-  const tsPrev = getSnapshotTimestamp(hour - 1, bundle);
-
-  if (!tsNow || !tsPrev) return {};
-
-  const now = bundle[tsNow] ?? {};
-  const prev = bundle[tsPrev] ?? {};
-
-  //get all unique ids between the two timestamps
-  const ids = new Set([...Object.keys(now), ...Object.keys(prev)]);
-  const out: Record<string, number> = {};
-  for (const id of ids) out[id] = (now[id] ?? 0) - (prev[id] ?? 0);
-  return out;
-}
 
 export const updateHexColorsLoading = (map: Map) => {
   map.setPaintProperty(H3_9_LAYER_ID, "fill-color", "#f1f5f9");
 };
 
 export const updateHexColorsDelta = (
-  bundle: Snapshot,
+  bundle: TimestampSnapshot,
   hour: number,
   map: Map,
-  setHourTripEstimate: (t: number) => void
+  setHourTripEstimate: (t: number) => void,
+  timestamp: string
 ) => {
-  const delta = deltaForHour(bundle, hour);
+  const delta = getMetricByZone(bundle[timestamp], Providers.TOTAL, "delta");
+
   const hourTripEstimate = Object.values(delta).reduce(
     (acc, cur) => (cur > 0 ? cur + acc : acc),
     0
   );
   setHourTripEstimate(hourTripEstimate);
-
-  //TODO: handle midnight
-  if (Object.keys(delta).length === 0) {
-    updateHexColorsLoading(map);
-    return;
-  }
 
   // 3 blues (down), neutral, 3 reds (up)
   const cetD13Blue = {
@@ -71,14 +67,8 @@ export const updateHexColorsDelta = (
     mid: "#4FB173", // medium green
     dark: "#0B7A3C", // deep green
   };
-  const neg1 = "#9ecae1",
-    neg2 = "#6baed6",
-    neg3 = "#3182bd";
-  const zero = "#f1f5f9";
-  const pos1 = "#fcae91",
-    pos2 = "#fb6a4a",
-    pos3 = "#cb181d";
 
+  const zero = "#f1f5f9";
   const v = ["to-number", ["get", ["id"], ["literal", delta]], 0];
 
   map.setPaintProperty(H3_9_LAYER_ID, "fill-color", [
@@ -108,18 +98,13 @@ export const updateHexColorsDelta = (
   ]);
 };
 
-export const updateHexColorsDensity = (bundle: Snapshot, hour: number, map: Map) => {
-  if (!bundle || !map) return;
-
-  const obj = bundle[getSnapshotTimestamp(hour, bundle)];
-  // If obj might be a Map or something else, normalize:
-  // obj = obj instanceof Map ? Object.fromEntries(obj) : obj;
+export const updateHexColorsDensity = (bundle: TimestampSnapshot, map: Map, timestamp: string) => {
+  const obj = getMetricByZone(bundle[timestamp], Providers.TOTAL, "density");
 
   const logMin = Math.log(1);
   const logMax = Math.log(101);
   const logRange = logMax - logMin;
 
-  // Strictly strings
   const color0 = "#0b276d";
   const color1 = "#1b5d8a";
   const color2 = "#238a91";
@@ -161,13 +146,10 @@ export const updateHexColorsDensity = (bundle: Snapshot, hour: number, map: Map)
     ],
   ];
 
-  // Sanity check: no non-strings at color positions
-  // (Optional) console.log(JSON.stringify(expr));
-
   map.setPaintProperty(H3_9_LAYER_ID, "fill-color", expr);
 };
 
-//flow intensity × HHI-style spatial concentration
+//volume × HHI-style spatial concentration
 export const computeHourScore = (delta: Record<string, number>) => {
   const values = Object.values(delta);
   if (values.length === 0) return 0;
@@ -175,7 +157,7 @@ export const computeHourScore = (delta: Record<string, number>) => {
   let totalPos = 0;
   let totalNeg = 0;
 
-  // First pass: totals
+  // First pass: total arrival + total departure
   for (const d of values) {
     if (d > 0) totalPos += d;
     else if (d < 0) totalNeg += -d;

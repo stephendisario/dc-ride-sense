@@ -192,9 +192,7 @@ Resources:
       MemorySize: 1024
       ReservedConcurrentExecutions: 100
       Policies:
-        - S3WritePolicy:
-            BucketName: !Ref SnapshotBucket
-        - S3ReadPolicy:
+        - S3CrudPolicy:
             BucketName: !Ref SnapshotBucket
         - Statement:
             - Effect: Allow

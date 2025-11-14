@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useGetSnapshots } from "@/api/getSnapshot";
-import { ZoneType } from "@/lib/types";
+import { ZoneType } from "@shared/types";
 import { HexLayerType, useView } from "@/stores/views";
 import { format } from "date-fns";
 import { updateHexColorsDelta, updateHexColorsDensity, updateHexColorsLoading } from "@/lib/helper";
@@ -20,8 +20,9 @@ export const useUpdateMapStyleOnChange = () => {
       return;
     }
 
+    const timestamp = Object.keys(bundle)[hour];
     if (activeHexLayer === HexLayerType.DELTA)
-      updateHexColorsDelta(bundle, hour, map, setHourTripEstimate);
-    else updateHexColorsDensity(bundle, hour, map);
+      updateHexColorsDelta(bundle, hour, map, setHourTripEstimate, timestamp);
+    else updateHexColorsDensity(bundle, map, timestamp);
   }, [bundle, hour, map, isBundleLoading, isMapLoading, activeHexLayer]);
 };
