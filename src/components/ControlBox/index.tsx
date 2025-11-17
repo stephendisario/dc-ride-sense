@@ -3,9 +3,11 @@ import Layers from "./Layers";
 import DatePicker from "./DatePicker";
 import Slider from "./Slider";
 import { useUpdateMapStyleOnChange } from "@/hooks/useUpdateMapStyleOnChange";
+import { useSnapshotsWithProviders } from "@/hooks/useSnapshotsWithProviders";
 
 export default function ControlBox() {
   useUpdateMapStyleOnChange();
+  useSnapshotsWithProviders();
 
   return (
     <div

@@ -4,20 +4,25 @@ import {
   LineLayerSpecification,
 } from "mapbox-gl";
 import {
+  BIKE_LANES_LAYER_ID,
+  BIKE_LANES_SOURCE_ID,
   H3_9_LAYER_ID,
   H3_9_SOURCE_ID,
   METRO_STATION_LAYER_ID,
   METRO_STATION_SOURCE_ID,
 } from "./constants";
 
-export const bikeLanesLayerStyle: LineLayerSpecification = {
-  id: "bike-lanes-layer",
+export const BIKE_LANES_LAYER_STYLE: LineLayerSpecification = {
+  id: BIKE_LANES_LAYER_ID,
   type: "line",
+  source: BIKE_LANES_SOURCE_ID,
   paint: {
-    "line-color": "#00ff22",
-    "line-width": 2,
+    "line-color": "#0f766e", // deep teal
+    "line-opacity": 0.7,
+    // thinner at low zoom, thicker as you zoom in
+    "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.7, 12, 1.2, 14, 2, 16, 3],
+    "line-blur": 0.1,
   },
-  source: "",
 };
 
 export const H3_9_LAYER_STYLE: FillLayerSpecification = {

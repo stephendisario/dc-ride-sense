@@ -49,7 +49,7 @@ export default function DatePicker() {
   const stepDay = (dir: "up" | "down") => {
     let next = dir === "up" ? addDays(date, 1) : subDays(date, 1);
 
-    if (isDisabledDate(next)) {
+    while (isDisabledDate(next)) {
       next = dir === "up" ? addDays(next, 1) : subDays(next, 1);
     }
 

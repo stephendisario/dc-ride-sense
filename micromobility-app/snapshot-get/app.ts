@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { parseDateString } from '../helper';
+import { parseDateString } from '../lib/helper';
 import { ZoneType } from '@shared/types';
 
 const s3 = new S3Client({});

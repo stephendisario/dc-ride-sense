@@ -1,20 +1,18 @@
 "use client";
-
 import { useState } from "react";
-import { HexLayerType, useView } from "@/stores/views";
+import { useView } from "@/stores/views";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLayerGroup, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { HexLayerType } from "@shared/types";
+import { DC_LAYERS, HEX_LAYERS } from "@shared/constants";
+import { useLayerVisibility } from "@/hooks/useLayerVisibility";
 
 const Layers = () => {
-  const { activeHexLayer, setActiveHexLayer } = useView();
+  const { activeHexLayer, setActiveHexLayer, activeDCLayers, toggleDCLayer } = useView();
 
-  const [showMetroLayer, setShowMetroLayer] = useState(false);
-  const [showBikeLanesLayer, setShowBikeLanesLayer] = useState(false);
+  useLayerVisibility();
 
-  const [open, setOpen] = useState(false);
-
-  const toggleMetro = () => setShowMetroLayer(!showMetroLayer);
-  const toggleBikeLanes = () => setShowBikeLanesLayer(!showBikeLanesLayer);
+  const [open, setOpen] = useState(true);
 
   const setHexLayer = (layer: HexLayerType) => {
     if (layer !== activeHexLayer) {
@@ -51,30 +49,21 @@ const Layers = () => {
             DC Layers
           </p>
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={toggleMetro}
-              className={`rounded-full px-2.5 py-1 text-xs font-medium border transition hover:cursor-pointer
-                ${
-                  showMetroLayer
-                    ? "bg-lime-500 border-lime-600 text-white"
-                    : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50"
-                }`}
-            >
-              Metro
-            </button>
-            <button
-              type="button"
-              onClick={toggleBikeLanes}
-              className={`rounded-full px-2.5 py-1 text-xs font-medium border transition hover:cursor-pointer
-                ${
-                  showBikeLanesLayer
-                    ? "bg-lime-500 border-lime-600 text-white"
-                    : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50"
-                }`}
-            >
-              Bike Lanes
-            </button>
+            {DC_LAYERS.map((layer) => (
+              <button
+                key={layer}
+                type="button"
+                onClick={() => toggleDCLayer(layer)}
+                className={`rounded-full px-2.5 py-1 text-xs font-medium border transition hover:cursor-pointer
+                  ${
+                    activeDCLayers.includes(layer)
+                      ? "bg-lime-500 border-lime-600 text-white"
+                      : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50"
+                  }`}
+              >
+                {layer}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -84,30 +73,21 @@ const Layers = () => {
             Hex Layer
           </p>
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setHexLayer(HexLayerType.DELTA)}
-              className={`flex-1 rounded-full px-2.5 py-1 text-xs font-medium border transition text-center hover:cursor-pointer
-                ${
-                  activeHexLayer === HexLayerType.DELTA
-                    ? "bg-lime-500 border-lime-600 text-white"
-                    : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50"
-                }`}
-            >
-              Delta
-            </button>
-            <button
-              type="button"
-              onClick={() => setHexLayer(HexLayerType.DENSITY)}
-              className={`flex-1 rounded-full px-2.5 py-1 text-xs font-medium border transition text-center hover:cursor-pointer
-                ${
-                  activeHexLayer === HexLayerType.DENSITY
-                    ? "bg-lime-500 border-lime-600 text-white"
-                    : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50"
-                }`}
-            >
-              Density
-            </button>
+            {HEX_LAYERS.map((layer) => (
+              <button
+                key={layer}
+                type="button"
+                onClick={() => setHexLayer(layer)}
+                className={`flex-1 rounded-full px-2.5 py-1 text-xs font-medium border transition text-center hover:cursor-pointer
+                  ${
+                    activeHexLayer === layer
+                      ? "bg-lime-500 border-lime-600 text-white"
+                      : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50"
+                  }`}
+              >
+                {layer.toUpperCase()}
+              </button>
+            ))}
           </div>
         </div>
       </div>

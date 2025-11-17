@@ -1,11 +1,8 @@
+import { DCLayerType, HexLayerType } from "@shared/types";
 import { subDays } from "date-fns";
 import { Map } from "mapbox-gl";
 import { create } from "zustand";
 
-export enum HexLayerType {
-  DELTA = "DELTA",
-  DENSITY = "DENSITY",
-}
 type ViewState = {
   date: Date;
   hour: number;
@@ -21,6 +18,9 @@ type ViewState = {
   setInterestingHours: (hours: number[]) => void;
   map: Map | null;
   setMap: (map: Map) => void;
+  activeDCLayers: DCLayerType[];
+  setActiveDCLayers: (layers: DCLayerType[]) => void;
+  toggleDCLayer: (layer: DCLayerType) => void;
 };
 
 export const useView = create<ViewState>((set) => ({
@@ -38,4 +38,15 @@ export const useView = create<ViewState>((set) => ({
   setInterestingHours: (hours) => set({ interestingHours: hours }),
   map: null,
   setMap: (map) => set({ map }),
+  activeDCLayers: [],
+  setActiveDCLayers: (activeDCLayers) => ({ activeDCLayers }),
+  toggleDCLayer: (layer) =>
+    set((state) => {
+      const isSelected = state.activeDCLayers.includes(layer);
+      return {
+        activeDCLayers: isSelected
+          ? state.activeDCLayers.filter((p) => p !== layer)
+          : [...state.activeDCLayers, layer],
+      };
+    }),
 }));

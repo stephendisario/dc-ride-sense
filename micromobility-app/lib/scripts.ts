@@ -5,8 +5,8 @@ async function enqueueAllChunks() {
     const sqs = new SQSClient({ region: 'us-east-1' });
     const QueueUrl = 'https://sqs.us-east-1.amazonaws.com/696600220270/snapshot-backfill-queue';
 
-    const startDate = new Date('2025-05-1');
-    const endDate = new Date('2025-11-13');
+    const startDate = new Date('2025-05-02');
+    const endDate = new Date('2025-11-17');
 
     const zoneType = 'h3-9';
 

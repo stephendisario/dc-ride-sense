@@ -45,7 +45,7 @@ export default function Slider() {
 
       <input
         type="range"
-        min="1"
+        min="0"
         max="23"
         step="1"
         value={hour}

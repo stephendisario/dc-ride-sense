@@ -1,165 +1,210 @@
 import { SQSEvent } from 'aws-lambda';
-import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-
-import { parseDateString } from '../helper';
-import { Providers, Snapshot, TimestampSnapshot, ZoneMetrics, ZoneType, LimeApiResponse } from '@shared/types';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { subDays, format as formatDateFns } from 'date-fns';
 import { latLngToCell } from 'h3-js';
+import { Providers, ZoneType, ZoneMetrics, Snapshot, TimestampSnapshot, LimeApiResponse } from '@shared/types';
+import { PROVIDERS, PROVIDERS_WITH_CHURN } from '@shared/constants';
+import { parseDateString } from 'micromobility-app/lib/helper';
 
 const s3 = new S3Client({});
 const bucketName = 'micromobility-snapshots';
 
-const extractTimestampFromGbfsKey = (key: string): string => {
-    // key: "2025/05/10/2025-05-10T22:00-LIME.geojson"
-    const filename = key.split('/').pop()!; // "2025-05-10T22:00-LIME.geojson"
-    return filename.replace('-LIME.geojson', ''); // "2025-05-10T22:00"
+const DISABLED_DATES = new Set<string>(['2025-07-26', '2025-10-20', '2025-11-13', '2025-11-14']);
+
+const dateToYMD = (dateStr: string) => {
+    const { year, month, day } = parseDateString(dateStr);
+    return { year, month, day };
 };
 
-const buildMultiHourSnapshotFromGbfs = async (gbfsKeys: string[]): Promise<TimestampSnapshot> => {
-    const multiHourSnapshot: TimestampSnapshot = {};
+// const loadGbfs = async (key: string): Promise<LimeApiResponse | null> => {
+//   try {
+//     const resp = await s3.send(
+//       new GetObjectCommand({
+//         Bucket: bucketName,
+//         Key: key,
+//       })
+//     );
+//     const body = await resp.Body?.transformToString();
+//     if (!body) return null;
+//     return JSON.parse(body) as LimeApiResponse;
+//   } catch (err: any) {
+//     if (err?.name === "NoSuchKey" || err?.$metadata?.httpStatusCode === 404) {
+//       console.log("GBFS not found for key:", key);
+//       return null;
+//     }
+//     console.error("Error loading GBFS", key, err);
+//     throw err;
+//   }
+// };
 
-    // Sort keys by timestamp so we can do hour-over-hour deltas
-    const sortedKeys = [...gbfsKeys].sort((a, b) =>
-        extractTimestampFromGbfsKey(a).localeCompare(extractTimestampFromGbfsKey(b)),
-    );
+// const buildMidnightMetricsForProvider = async (
+//   dateStr: string, // "YYYY-MM-DD"
+//   provider: Providers
+// ): Promise<Record<string, ZoneMetrics> | null> => {
+//   // Skip TOTAL when computing provider snapshots
+//   if (provider === Providers.TOTAL) return null;
 
-    let prevZonesLime: Record<string, number> = {};
+//   const date = new Date(`${dateStr}T00:00:00Z`);
+//   const prevDate = subDays(date, 1);
+//   const prevDateStr = formatDateFns(prevDate, "yyyy-MM-dd");
 
-    for (const key of sortedKeys) {
-        const timestamp = extractTimestampFromGbfsKey(key);
+//   const { year: prevYear, month: prevMonth, day: prevDay } = dateToYMD(prevDateStr);
+//   const { year, month, day } = dateToYMD(dateStr);
 
-        const resp = await s3.send(
-            new GetObjectCommand({
-                Bucket: bucketName,
-                Key: key,
-            }),
-        );
-        const body = await resp.Body?.transformToString();
-        if (!body) continue;
+//   const prevTs = `${prevDateStr}T23:00`;
+//   const currTs = `${dateStr}T00:00`;
 
-        const gbfs = JSON.parse(body) as LimeApiResponse;
+//   const prevKey = `${prevYear}/${prevMonth}/${prevDay}/${prevTs}-${provider}.geojson`;
+//   const currKey = `${year}/${month}/${day}/${currTs}-${provider}.geojson`;
 
-        // 1) Compute current densities by H3-9 hex
-        const currZonesLime: Record<string, number> = {};
+//   const prevGbfs = await loadGbfs(prevKey);
+//   const currGbfs = await loadGbfs(currKey);
 
-        gbfs.data.bikes.forEach((bike) => {
-            const { lat, lon } = bike;
-            const zoneId = latLngToCell(lat, lon, 9);
-            if (!zoneId) return;
-            currZonesLime[zoneId] = (currZonesLime[zoneId] || 0) + 1;
-        });
+//   if (!prevGbfs || !currGbfs) {
+//     console.log(
+//       `Skipping provider ${provider} for ${dateStr} midnight (missing prev or curr GBFS)`
+//     );
+//     return null;
+//   }
 
-        // 2) Compute union-of-zones across current and previous hour
-        const allZoneIds = new Set<string>([...Object.keys(currZonesLime), ...Object.keys(prevZonesLime)]);
+//   const prevObj: Record<string, string[]> = {};
+//   prevGbfs.data.bikes.forEach((bike) => {
+//     const { lat, lon, bike_id } = bike;
+//     const zoneId = latLngToCell(lat, lon, 9);
+//     if (!zoneId) return;
+//     (prevObj[zoneId] ??= []).push(bike_id);
+//   });
 
-        const limeMetrics: Record<string, ZoneMetrics> = {};
-        const totalMetrics: Record<string, ZoneMetrics> = {};
+//   const currObj: Record<string, string[]> = {};
+//   currGbfs.data.bikes.forEach((bike) => {
+//     const { lat, lon, bike_id } = bike;
+//     const zoneId = latLngToCell(lat, lon, 9);
+//     if (!zoneId) return;
+//     (currObj[zoneId] ??= []).push(bike_id);
+//   });
 
-        for (const zoneId of allZoneIds) {
-            const currDensity = currZonesLime[zoneId] ?? 0;
-            const prevDensity = prevZonesLime[zoneId] ?? 0;
+//   const allZoneIds = new Set<string>([
+//     ...Object.keys(prevObj),
+//     ...Object.keys(currObj),
+//   ]);
 
-            const metrics: ZoneMetrics = {
-                density: currDensity,
-                delta: currDensity - prevDensity,
-                churn: 0, // LIME has no churn tracking in your model
-            };
+//   const metricsByZone: Record<string, ZoneMetrics> = {};
+//   const hasChurn = PROVIDERS_WITH_CHURN.includes(provider);
 
-            limeMetrics[zoneId] = metrics;
-            totalMetrics[zoneId] = { ...metrics };
-        }
+//   for (const zoneId of allZoneIds) {
+//     const prevBikeIds = prevObj[zoneId] ?? [];
+//     const currBikeIds = currObj[zoneId] ?? [];
 
-        const snapshot: Snapshot = {
-            [Providers.LIME]: limeMetrics,
-            [Providers.TOTAL]: totalMetrics,
-        };
+//     const density = currBikeIds.length;
+//     const delta = density - prevBikeIds.length;
 
-        multiHourSnapshot[timestamp] = snapshot;
+//     let churn = 0;
+//     if (hasChurn) {
+//       const uniqueOld = prevBikeIds.filter((id) => !currBikeIds.includes(id));
+//       const uniqueNew = currBikeIds.filter((id) => !prevBikeIds.includes(id));
+//       churn = uniqueOld.length + uniqueNew.length;
+//     }
 
-        // 3) Update previous densities for next hour
-        prevZonesLime = currZonesLime;
-    }
+//     metricsByZone[zoneId] = { density, delta, churn };
+//   }
 
-    return multiHourSnapshot;
-};
+//   return metricsByZone;
+// };
 
-const processSnapshotChunk = async (date: string, zoneType: ZoneType) => {
-    try {
-        const { year, month, day } = parseDateString(date);
-        const prefix = `${year}/${month}/${day}/`;
+// const fixMidnightForDate = async (dateStr: string, zoneType: ZoneType) => {
+//   if (DISABLED_DATES.has(dateStr)) {
+//     console.log(`Skipping disabled date ${dateStr}`);
+//     return;
+//   }
 
-        // List all objects for this day
-        const listResp = await s3.send(
-            new ListObjectsV2Command({
-                Bucket: bucketName,
-                Prefix: prefix,
-            }),
-        );
+//   if (zoneType !== ZoneType.ZoneH3_9) {
+//     console.log(`Skipping zoneType ${zoneType} (only h3-9 supported)`);
+//     return;
+//   }
 
-        const contents = listResp.Contents ?? [];
-        const keys = contents.map((o) => o.Key!).filter(Boolean);
+//   const { year, month, day } = dateToYMD(dateStr);
+//   const multiHourKey = `${year}/${month}/${day}/${zoneType}.json`;
+//   const midnightTimestamp = `${dateStr}T00:00`;
 
-        // LIME GBFS feeds: "YYYY-MM-DDTHH:MM-LIME.geojson"
-        const gbfsKeysLime = keys.filter((key) => {
-            if (!key.endsWith('.geojson')) return false;
-            const filename = key.split('/').pop()!;
-            return filename.endsWith('-LIME.geojson');
-        });
+//   // Load existing multi-hour snapshot
+//   let multiHourSnapshot: TimestampSnapshot = {};
+//   try {
+//     const resp = await s3.send(
+//       new GetObjectCommand({
+//         Bucket: bucketName,
+//         Key: multiHourKey,
+//       })
+//     );
+//     const body = await resp.Body?.transformToString();
+//     multiHourSnapshot = body ? JSON.parse(body) : {};
+//   } catch (err: any) {
+//     if (err?.name === "NoSuchKey" || err?.$metadata?.httpStatusCode === 404) {
+//       console.log(`No existing multi-hour snapshot for ${dateStr}, will create a new one.`);
+//       multiHourSnapshot = {};
+//     } else {
+//       console.error("Error loading multi-hour snapshot", err);
+//       throw err;
+//     }
+//   }
 
-        if (gbfsKeysLime.length === 0) {
-            console.log(`No LIME GBFS feeds found for ${date}, prefix=${prefix}`);
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    message: `No LIME GBFS feeds for ${date}`,
-                }),
-            };
-        }
+//   // 🔥 Strip TOTAL from *all* timestamps if present
+//   for (const snapshot of Object.values(multiHourSnapshot)) {
+//     if (snapshot[Providers.TOTAL]) {
+//       delete snapshot[Providers.TOTAL];
+//     }
+//   }
 
-        // 1) Build new multi-hour snapshot from LIME GBFS only
-        const multiHourSnapshot = await buildMultiHourSnapshotFromGbfs(gbfsKeysLime);
+//   // Build midnight snapshot per provider (excluding TOTAL)
+//   const midnightSnapshot: Snapshot = {};
+//   for (const provider of PROVIDERS) {
+//     if (provider === Providers.TOTAL) continue;
 
-        // 2) Write combined file: e.g. "2025/05/10/h3-9.json"
-        const multiHourKey = `${prefix}${zoneType}.json`;
-        await s3.send(
-            new PutObjectCommand({
-                Bucket: bucketName,
-                Key: multiHourKey,
-                Body: JSON.stringify(multiHourSnapshot),
-                ContentType: 'application/json',
-            }),
-        );
+//     const metricsByZone = await buildMidnightMetricsForProvider(dateStr, provider);
+//     if (metricsByZone && Object.keys(metricsByZone).length > 0) {
+//       midnightSnapshot[provider] = metricsByZone;
+//     }
+//   }
 
-        console.log(
-            `Rebuilt densities for ${date}: ` + `${gbfsKeysLime.length} LIME GBFS snapshots -> ${multiHourKey}`,
-        );
+//   if (Object.keys(midnightSnapshot).length === 0) {
+//     console.log(`No providers with usable GBFS for midnight on ${dateStr}, nothing to write.`);
+//     // Still write the cleaned snapshot (without TOTAL) if it existed
+//     await s3.send(
+//       new PutObjectCommand({
+//         Bucket: bucketName,
+//         Key: multiHourKey,
+//         Body: JSON.stringify(multiHourSnapshot),
+//         ContentType: "application/json",
+//       })
+//     );
+//     return;
+//   }
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: `Rebuilt ${date}: ${gbfsKeysLime.length} LIME GBFS -> ${multiHourKey}`,
-            }),
-        };
-    } catch (err) {
-        console.log('Backfill error', err);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: 'some error happened during backfill',
-            }),
-        };
-    }
-};
+//   // Overwrite or create midnight entry
+//   multiHourSnapshot[midnightTimestamp] = midnightSnapshot;
+
+//   await s3.send(
+//     new PutObjectCommand({
+//       Bucket: bucketName,
+//       Key: multiHourKey,
+//       Body: JSON.stringify(multiHourSnapshot),
+//       ContentType: "application/json",
+//     })
+//   );
+
+//   console.log(
+//     `Updated midnight (${midnightTimestamp}) in ${multiHourKey}, removed TOTAL from all timestamps`
+//   );
+// };
 
 export const lambdaHandler = async (event: SQSEvent) => {
     for (const record of event.Records) {
         const message = JSON.parse(record.body) as {
-            date: string;
+            date: string; // "YYYY-MM-DD"
             zoneType: ZoneType;
         };
 
         const { date, zoneType } = message;
-
-        console.log(`Processing LIME-density backfill chunk: ${date} for zone type ${zoneType}`);
-        await processSnapshotChunk(date, zoneType);
+        console.log(`Fixing midnight + removing TOTAL for ${date}, zoneType=${zoneType}`);
+        // await fixMidnightForDate(date.slice(0, 10), zoneType);
     }
 };

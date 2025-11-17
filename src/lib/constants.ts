@@ -16,6 +16,11 @@ export const METRO_STATION_SOURCE_URL =
 export const METRO_STATION_SOURCE_ID = "metro-station-source";
 export const METRO_STATION_LAYER_ID = "metro-station-layer";
 
+export const BIKE_LANES_SOURCE_URL =
+  "https://micromobility-snapshots.s3.us-east-1.amazonaws.com/Bicycle_Lanes.geojson";
+export const BIKE_LANES_SOURCE_ID = "bike-lanes-source";
+export const BIKE_LANES_LAYER_ID = "bike-lanes-layer";
+
 export const gridSourceId = "grid-source";
 export const gridLayerId = "grid-layer";
 

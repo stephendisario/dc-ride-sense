@@ -35,8 +35,7 @@ export type TimestampSnapshot = {
 export enum Providers {
     LIME = 'LIME',
     VEO = 'VEO',
-    HOPP = 'HOPP',
-    TOTAL = 'TOTAL',
+    HOPP = 'HOPP'
 }
 
 export enum ZoneType {
@@ -44,4 +43,15 @@ export enum ZoneType {
     Zone300 = '300m',
     ZoneRoadBlock = 'road-block',
     ZoneH3_9 = 'h3-9',
+}
+
+export enum HexLayerType {
+    DELTA = "delta",
+    DENSITY = "density",
+    CHURN = 'churn'
+  }
+
+export enum DCLayerType {
+    METRO = "METRO",
+    BIKE_LANES = "BIKE_LANES"
 }
