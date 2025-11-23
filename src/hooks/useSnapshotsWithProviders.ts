@@ -13,6 +13,7 @@ const extractProvidersFromSnapshot = (snapshot: TimestampSnapshot): Providers[] 
   return Object.keys(first).filter((p) => p !== "TOTAL") as Providers[];
 };
 
+// find and set available providers for given day
 export const useSnapshotsWithProviders = () => {
   const { date } = useView();
   const { data: bundle } = useGetSnapshots(format(date, "yyyy-MM-dd"), ZoneType.ZoneH3_9);

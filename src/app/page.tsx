@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
 import mapboxgl, { Map as MapboxMap } from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
 import {
   BIKE_LANES_LAYER_ID,
   BIKE_LANES_SOURCE_ID,
@@ -21,8 +20,12 @@ import {
 } from "../lib/layerStyles";
 import Header from "../components/Header";
 import { useView } from "@/stores/views";
-import ControlBox from "../components/ControlBox";
-import ProviderPills from "@/components/ProviderPills";
+import { useHexHover } from "@/hooks/useHexHover";
+import { useUpdateMapStyleOnChange } from "@/hooks/useUpdateMapStyleOnChange";
+import { useSnapshotsWithProviders } from "@/hooks/useSnapshotsWithProviders";
+import MapControlBox from "@/components/MapControlBox";
+import TimeControlBox from "../components/TimeControlBox";
+import IntroModal from "@/components/IntroModal";
 
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -32,7 +35,12 @@ const App = () => {
 
   const { setMap } = useView();
 
+  useUpdateMapStyleOnChange();
+  useSnapshotsWithProviders();
+  useHexHover();
+
   useEffect(() => {
+    console.log("fire");
     if (!mapContainerRef.current) return;
 
     mapboxgl.accessToken = mapboxToken;
@@ -75,14 +83,19 @@ const App = () => {
     return () => {
       map.remove();
     };
-  }, []);
+  }, [setMap]);
 
   return (
     <>
       <div className="h-screen w-screen" id="map-container" ref={mapContainerRef} />
-      <Header />
-      <ProviderPills />
-      <ControlBox />
+      {mapRef.current && (
+        <>
+          <IntroModal />
+          <Header />
+          <MapControlBox />
+          <TimeControlBox />
+        </>
+      )}
     </>
   );
 };

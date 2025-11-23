@@ -1,8 +1,5 @@
 import { useEffect } from "react";
-import { DCLayerType, Providers, TimestampSnapshot, ZoneType } from "@shared/types";
-import { useGetSnapshots } from "@/api/getSnapshot";
-import { useProviderStore } from "@/stores/provider";
-import { format } from "date-fns";
+import { DCLayerType } from "@shared/types";
 import { useView } from "@/stores/views";
 import { BIKE_LANES_LAYER_ID, METRO_STATION_LAYER_ID } from "@/lib/constants";
 

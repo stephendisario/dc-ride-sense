@@ -10,7 +10,7 @@ const logTimestampGaps = (snapshot: TimestampSnapshot) => {
   const hoursPresent = new Set<number>();
 
   for (const ts of timestamps) {
-    const [datePart, timePart] = ts.split("T");
+    const [_datePart, timePart] = ts.split("T");
     if (!timePart) continue;
 
     const [hourStr, minuteStr] = timePart.split(":");

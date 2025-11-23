@@ -32,6 +32,12 @@ export type TimestampSnapshot = {
     [timestamp: string]: Snapshot;
 };
 
+export type SparklinePoint = {
+    ts: string;
+    value: number;
+    isCurrent?: boolean; 
+  };
+
 export enum Providers {
     LIME = 'LIME',
     VEO = 'VEO',
@@ -55,3 +61,5 @@ export enum DCLayerType {
     METRO = "METRO",
     BIKE_LANES = "BIKE_LANES"
 }
+
+export type IconButton = 'CALENDAR' | 'EVENTS' | 'LAYERS' | ""

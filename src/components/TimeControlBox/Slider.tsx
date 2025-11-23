@@ -2,6 +2,8 @@
 import { format } from "date-fns";
 import { useView } from "@/stores/views";
 import { useInterestingHours } from "@/hooks/useInterestingHours";
+import { faFire } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Slider() {
   const { hour, setHour, interestingHours } = useView();
@@ -25,22 +27,30 @@ export default function Slider() {
 
   return (
     <div className="flex flex-col space-y-2">
-      <div className="flex justify-center gap-4 text-xs text-gray-700 px-1">
-        {presetButtons.map((p) => (
-          <button
-            key={p.value}
-            type="button"
-            onClick={() => setHour(p.value)}
-            className={`px-2.5 py-0.5 rounded-full border transition text-xs hover: cursor-pointer
+      <div className="relative px-1 text-xs text-gray-700">
+        <FontAwesomeIcon
+          color="orange"
+          icon={faFire}
+          size="xl"
+          className="absolute left-9 top-1/2 -translate-y-1/2"
+        />
+        <div className="flex justify-center gap-4">
+          {presetButtons.map((p) => (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => setHour(p.value)}
+              className={`px-2.5 py-0.5 rounded-full border transition text-xs hover: cursor-pointer
           ${
             hour === p.value
               ? "bg-lime-500 border-lime-600 text-white"
               : "bg-white/70 border-gray-300 text-gray-700 hover:bg-lime-50"
           }`}
-          >
-            {p.label}
-          </button>
-        ))}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <input

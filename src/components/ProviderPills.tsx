@@ -22,7 +22,7 @@ const ProviderPills = () => {
   const { selectedProviders, toggleProvider, availableProviders } = useProviderStore();
 
   return (
-    <div className="fixed top-4 left-1/2 z-20 -translate-x-1/2">
+    <div className="fixed  z-20">
       <div className="flex items-center gap-2 rounded-full border border-gray-300 bg-white/70 px-3 py-1.5 shadow-sm backdrop-blur">
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Providers

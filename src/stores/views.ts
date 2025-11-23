@@ -1,5 +1,5 @@
 import { DCLayerType, HexLayerType } from "@shared/types";
-import { subDays } from "date-fns";
+import { subDays, startOfMonth } from "date-fns";
 import { Map } from "mapbox-gl";
 import { create } from "zustand";
 
@@ -21,6 +21,8 @@ type ViewState = {
   activeDCLayers: DCLayerType[];
   setActiveDCLayers: (layers: DCLayerType[]) => void;
   toggleDCLayer: (layer: DCLayerType) => void;
+  month: Date;
+  setMonth: (m: Date) => void;
 };
 
 export const useView = create<ViewState>((set) => ({
@@ -49,4 +51,6 @@ export const useView = create<ViewState>((set) => ({
           : [...state.activeDCLayers, layer],
       };
     }),
+  month: startOfMonth(new Date()),
+  setMonth: (month) => set({ month }),
 }));
