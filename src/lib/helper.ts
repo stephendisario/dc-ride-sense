@@ -8,6 +8,7 @@ export const getMetricByZone = (
   const result: Record<string, number> = {};
 
   for (const provider of providers) {
+    // eslint-disable-next-line
     if (provider === ("TOTAL" as any)) continue; //skip old type if it still exists
     const providerZones = snapshot?.[provider] ?? {};
 

@@ -12,12 +12,6 @@ type DCEvent = {
 
 const DC_EVENTS: DCEvent[] = [
   {
-    id: "2025-05-03",
-    label: "AdMo PorchFest",
-    date: new Date(2025, 4, 3),
-    hour: 15,
-  },
-  {
     id: "2025-06-07",
     label: "World Pride Parade",
     date: new Date(2025, 5, 7),
@@ -28,6 +22,12 @@ const DC_EVENTS: DCEvent[] = [
     label: "DC Half Marathon",
     date: new Date(2025, 8, 14),
     hour: 7,
+  },
+  {
+    id: "2025-08-12",
+    label: "Midweek Work Commute",
+    date: new Date(2025, 7, 12),
+    hour: 9,
   },
   {
     id: "2025-09-20",

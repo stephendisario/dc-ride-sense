@@ -2,7 +2,7 @@
 import DatePicker from "./DatePicker";
 import Slider from "./Slider";
 import EventsPanel from "./EventList";
-import IconBar from "../IconBar";
+import IconBar from "../partials/IconBar";
 import Calendar from "./Calendar";
 import { useState } from "react";
 import { IconButton } from "@shared/types";

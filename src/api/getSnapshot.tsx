@@ -10,6 +10,7 @@ const logTimestampGaps = (snapshot: TimestampSnapshot) => {
   const hoursPresent = new Set<number>();
 
   for (const ts of timestamps) {
+    // eslint-disable-next-line
     const [_datePart, timePart] = ts.split("T");
     if (!timePart) continue;
 

@@ -16,7 +16,7 @@ export default function Slider() {
     .sort((a, b) => a - b)
     .map((h) => ({
       value: h,
-      label: format(new Date(0, 0, 0, h), "h a"), // "9 AM", "6 PM", ...
+      label: format(new Date(0, 0, 0, h), "h a"),
     }));
 
   const formatHour = (h: number) => {
@@ -28,12 +28,14 @@ export default function Slider() {
   return (
     <div className="flex flex-col space-y-2">
       <div className="relative px-1 text-xs text-gray-700">
-        <FontAwesomeIcon
-          color="orange"
-          icon={faFire}
-          size="xl"
-          className="absolute left-9 top-1/2 -translate-y-1/2"
-        />
+        <div className="group absolute left-9 top-1/2 -translate-y-1/2">
+          <FontAwesomeIcon icon={faFire} size="xl" className="cursor-pointer" />
+          <div className="pointer-events-none absolute bottom-full left-0 z-10 mb-1 w-60 rounded-md bg-slate-900 px-2 py-1 text-[10px] leading-snug text-slate-100 opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+            <span className="font-semibold">Interesting hours</span> are selected by scoring each
+            hour based on how much movement happens and how concentrated that movement is. These are
+            the hours with the strongest, most focused activity for this day.
+          </div>
+        </div>
         <div className="flex justify-center gap-4">
           {presetButtons.map((p) => (
             <button

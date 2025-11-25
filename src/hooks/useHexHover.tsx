@@ -86,6 +86,7 @@ export const useHexHover = () => {
 
     if (!map || !popup || !root) return;
 
+    // eslint-disable-next-line
     const showPopupForFeature = (e: MapMouseEvent, feature: any) => {
       const h3Id: string = feature.id;
 

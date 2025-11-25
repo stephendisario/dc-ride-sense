@@ -1,5 +1,4 @@
-import HexLegend from "./HexLegend";
-import IconBar from "../IconBar";
+import IconBar from "../partials/IconBar";
 import Layers from "./Layers";
 import { useState } from "react";
 import { IconButton } from "@shared/types";
@@ -22,11 +21,6 @@ const MapControlBox = () => {
         <div className={activeIconButton !== "LAYERS" ? "hidden" : ""}>
           <Layers />
         </div>
-
-        {/* <HexLegend /> */}
-      </div>
-      <div className=" absolute bottom-0 right-1/2 translate-x-1/2 mb-8">
-        <HexLegend />
       </div>
     </>
   );

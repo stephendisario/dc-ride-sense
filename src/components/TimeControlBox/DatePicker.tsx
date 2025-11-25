@@ -45,7 +45,7 @@ export default function DatePicker() {
   return (
     <div
       className="flex items-center justify-between rounded border border-gray-300 px-3 py-1.5
-                  bg-white/80 backdrop-blur-sm text-sm font-medium"
+                  bg-white/85 shadow-sm backdrop-blur-sm text-sm font-medium"
     >
       <button
         onClick={() => stepDay("down")}

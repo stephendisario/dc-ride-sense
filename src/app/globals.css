@@ -16,4 +16,8 @@
   @apply !border-t-white/60
 }
 
+.rdp-root {
+  --rdp-accent-color: rgb(132 204 22);
+}
+
 

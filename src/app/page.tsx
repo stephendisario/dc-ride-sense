@@ -26,6 +26,7 @@ import { useSnapshotsWithProviders } from "@/hooks/useSnapshotsWithProviders";
 import MapControlBox from "@/components/MapControlBox";
 import TimeControlBox from "../components/TimeControlBox";
 import IntroModal from "@/components/IntroModal";
+import HexLegend from "@/components/HexLegend";
 
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -40,7 +41,6 @@ const App = () => {
   useHexHover();
 
   useEffect(() => {
-    console.log("fire");
     if (!mapContainerRef.current) return;
 
     mapboxgl.accessToken = mapboxToken;
@@ -92,8 +92,9 @@ const App = () => {
         <>
           <IntroModal />
           <Header />
-          <MapControlBox />
           <TimeControlBox />
+          <HexLegend />
+          <MapControlBox />
         </>
       )}
     </>

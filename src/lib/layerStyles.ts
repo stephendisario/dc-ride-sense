@@ -33,7 +33,7 @@ export const H3_9_LAYER_STYLE: FillLayerSpecification = {
   source: H3_9_SOURCE_ID,
   paint: {
     "fill-outline-color": "#d1d5db",
-    "fill-color": "transparent",
+    "fill-color": "#f1f5f9",
     "fill-opacity": 0.6,
   },
 };
@@ -157,6 +157,7 @@ export const updateHexColorsChurn = (map: Map, churn: Record<string, number>) =>
     dark: "#0B7A3C", // deep green
   };
 
+  // eslint-disable-next-line
   const v: any = ["to-number", ["get", ["id"], ["literal", churn]], 0];
 
   map.setPaintProperty(H3_9_LAYER_ID, "fill-color", [

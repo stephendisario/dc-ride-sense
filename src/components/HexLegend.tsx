@@ -32,8 +32,8 @@ const DeltaLegend = () => (
       "
     />
     <div className="mt-1 flex justify-between text-[10px] text-slate-500">
-      <span>Net fewer vehicles</span>
-      <span>Net more vehicles</span>
+      <span>Fewer vehicles</span>
+      <span>More vehicles</span>
     </div>
   </>
 );
@@ -92,7 +92,7 @@ const ChurnLegend = () => (
           <p className="mb-1 font-semibold text-[12px]">What is Churn?</p>
           <p>
             Churn counts how many vehicles entered <span className="font-semibold">plus</span> how
-            many left this hex over the last hour.
+            many vehicles left a hex over the last hour.
           </p>
           <p className="mb-1 mt-1 font-semibold text-[12px]">How does it differ from Delta?</p>
           <p>
@@ -128,11 +128,13 @@ const HexLegend = () => {
   if (!activeHexLayer) return null;
 
   return (
-    <div className="flex h-[114px] flex-col justify-end">
-      <div className="pointer-events-auto w-[350px] rounded-lg border border-gray-300 bg-white/85 px-3 pb-1 pt-2 text-xs text-gray-800 shadow-sm backdrop-blur-sm">
-        {activeHexLayer === HexLayerType.DELTA && <DeltaLegend />}
-        {activeHexLayer === HexLayerType.DENSITY && <DensityLegend />}
-        {activeHexLayer === HexLayerType.CHURN && <ChurnLegend />}
+    <div className=" absolute bottom-0 right-1/2 translate-x-1/2 mb-8">
+      <div className="flex h-[114px] flex-col justify-end">
+        <div className="pointer-events-auto w-[350px] rounded-lg border border-gray-300 bg-white/85 px-3 pb-1 pt-2 text-xs text-gray-800 shadow-sm backdrop-blur-sm">
+          {activeHexLayer === HexLayerType.DELTA && <DeltaLegend />}
+          {activeHexLayer === HexLayerType.DENSITY && <DensityLegend />}
+          {activeHexLayer === HexLayerType.CHURN && <ChurnLegend />}
+        </div>
       </div>
     </div>
   );

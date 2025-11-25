@@ -30,6 +30,7 @@ const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
   const { activeHexLayer: metricLabel } = useView();
   const { metricObj } = useHexMetrics();
   const hasSeries = !!series && series.length > 0;
+  // eslint-disable-next-line
   const data = hasSeries ? series!.map((s) => s.value) : [];
   const { hour, map } = useView();
   const [hourIndex, setHourIndex] = useState<null | number>(hour);

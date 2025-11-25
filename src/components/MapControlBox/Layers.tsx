@@ -49,7 +49,7 @@ const Layers = () => {
   }, [activeHexLayer, date, setActiveHexLayer]);
 
   return (
-    <div className="h-[117.5px] rounded border border-gray-300 bg-white/80 px-3 py-2 text-xs font-medium text-gray-800 shadow-sm backdrop-blur-sm">
+    <div className="h-[117.5px] rounded border border-gray-300 bg-white/85 px-3 py-2 text-xs font-medium text-gray-800 shadow-sm backdrop-blur-sm">
       <div className="flex h-full flex-col justify-between gap-1.5">
         {/* Providers row */}
         <div className="flex items-center gap-2">
