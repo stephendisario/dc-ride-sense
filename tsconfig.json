@@ -38,7 +38,6 @@
   ],
   "exclude": [
     "node_modules",
-    "public/**/*.geojson",
-    "public/**/*.json"
+    "micromobility-app/"
   ]
 }
