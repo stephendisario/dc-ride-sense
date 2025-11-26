@@ -1,23 +1,20 @@
 import { LngLat } from "mapbox-gl";
 
-export const MICROMOBILITY_ENDPOINT_PROD =
-  "https://ubrto93gx5.execute-api.us-east-1.amazonaws.com/Prod";
+export const MICROMOBILITY_ENDPOINT = process.env.NEXT_PUBLIC_MICROMOBILITY_ENDPOINT
+const CDN_BASE = process.env.NEXT_PUBLIC_CDN_BASE;
 
 export const INITIAL_CENTER = new LngLat(-77.01, 38.9);
 export const INITIAL_ZOOM = 11.2;
 
-export const H3_9_SOURCE_URL =
-  "https://micromobility-snapshots.s3.us-east-1.amazonaws.com/zones-h3-9.geojson";
+export const H3_9_SOURCE_URL = `${CDN_BASE}/zones-h3-9.geojson`;
 export const H3_9_SOURCE_ID = "h3-9-source";
 export const H3_9_LAYER_ID = "h3-9-layer";
 
-export const METRO_STATION_SOURCE_URL =
-  "https://micromobility-snapshots.s3.us-east-1.amazonaws.com/Metro_Stations_Regional.geojson";
+export const METRO_STATION_SOURCE_URL = `${CDN_BASE}/Metro_Stations_Regional.geojson`
 export const METRO_STATION_SOURCE_ID = "metro-station-source";
 export const METRO_STATION_LAYER_ID = "metro-station-layer";
 
-export const BIKE_LANES_SOURCE_URL =
-  "https://micromobility-snapshots.s3.us-east-1.amazonaws.com/Bicycle_Lanes.geojson";
+export const BIKE_LANES_SOURCE_URL = `${CDN_BASE}/Bicycle_Lanes.geojson`
 export const BIKE_LANES_SOURCE_ID = "bike-lanes-source";
 export const BIKE_LANES_LAYER_ID = "bike-lanes-layer";
 

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { MICROMOBILITY_ENDPOINT_PROD } from "../lib/constants";
 import { sortSnapshotTimestamps } from "../lib/helper";
 import { TimestampSnapshot, ZoneType } from "@shared/types";
+import { MICROMOBILITY_ENDPOINT } from "@/lib/constants";
 
 const logTimestampGaps = (snapshot: TimestampSnapshot) => {
   const timestamps = Object.keys(snapshot).sort();
@@ -45,7 +45,7 @@ const logTimestampGaps = (snapshot: TimestampSnapshot) => {
 
 const getSnapshots = async (dateString: string, zoneType: ZoneType): Promise<TimestampSnapshot> => {
   const res = await fetch(
-    `${MICROMOBILITY_ENDPOINT_PROD}/snapshot?dateString=${dateString}&zoneType=${zoneType}`
+    `${MICROMOBILITY_ENDPOINT}/snapshot?dateString=${dateString}&zoneType=${zoneType}`
   );
   if (!res.ok) throw new Error("Failed to fetch snapshots");
   const data: TimestampSnapshot = await res.json();

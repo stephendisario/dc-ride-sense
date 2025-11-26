@@ -27,107 +27,8 @@ Resources:
         Variables:
           BUCKET_NAME: !Ref SnapshotBucket
       Policies:
-          - S3ReadPolicy:
-              BucketName: !Ref SnapshotBucket
-          - Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: "*"
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints: 
-          - app.ts
-
-  # 🗃️ DynamoDB Table
-  MicromobilityDataTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: MicromobilityData
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: pk
-          AttributeType: S
-        - AttributeName: sk
-          AttributeType: S
-      KeySchema:
-        - AttributeName: pk
-          KeyType: HASH
-        - AttributeName: sk
-          KeyType: RANGE
-
-  SnapshotBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub micromobility-snapshots
-      VersioningConfiguration:
-        Status: Enabled
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-      CorsConfiguration:
-        CorsRules:
-          - AllowedMethods: [GET]
-            AllowedOrigins: 
-              - http://localhost:3000
-            AllowedHeaders:
-              - Origin
-              - Access-Control-Request-Method
-              - Access-Control-Request-Headers
-              - Range
-              - If-Modified-Since
-              - If-None-Match
-            ExposedHeaders:
-              - Accept-Ranges
-              - Content-Length
-              - Content-Range
-              - ETag
-              - Last-Modified
-            MaxAge: 86400
-
-  SnapshotBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref SnapshotBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: AllowPublicRead
-            Effect: Allow
-            Principal: "*"
-            Action: "s3:GetObject"
-            Resource: !Sub "${SnapshotBucket.Arn}/*"
-
-  # ⏱️ Lambda Function
-  SnapshotProcessorFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: snapshot-processor/
-      MemorySize: 1024
-      Handler: app.lambdaHandler
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref MicromobilityDataTable
-          BUCKET_NAME: !Ref SnapshotBucket
-      Policies:
-        - S3WritePolicy:
-            BucketName: !Ref SnapshotBucket
         - S3ReadPolicy:
             BucketName: !Ref SnapshotBucket
-        - DynamoDBCrudPolicy:
-            TableName: !Ref MicromobilityDataTable
         - Statement:
             - Effect: Allow
               Action:
@@ -141,7 +42,53 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
-        EntryPoints: 
+        EntryPoints:
+          - app.ts
+
+  SnapshotBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub micromobility-snapshots
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  SnapshotProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: snapshot-processor/
+      MemorySize: 1024
+      Handler: app.lambdaHandler
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref SnapshotBucket
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref SnapshotBucket
+        - S3ReadPolicy:
+            BucketName: !Ref SnapshotBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
           - app.ts
 
   HourlySnapshotSchedule:
@@ -180,7 +127,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: snapshot-backfill-queue
-      VisibilityTimeout: 900 
+      VisibilityTimeout: 900
 
   SnapshotBackfillFunction:
     Type: AWS::Serverless::Function
@@ -191,6 +138,9 @@ Resources:
       Timeout: 900
       MemorySize: 1024
       ReservedConcurrentExecutions: 100
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref SnapshotBucket
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref SnapshotBucket
@@ -214,27 +164,96 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
-        EntryPoints: 
+        EntryPoints:
           - app.ts
+
+  StaticAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub micromobility-static-geo
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [GET]
+            AllowedOrigins:
+              - "*"
+            AllowedHeaders:
+              - "*"
+
+  StaticAssetsOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: static-assets-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  StaticAssetsDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: "CDN for static geo assets (roadblocks, metro, h3 grid)"
+        DefaultRootObject: ""
+        Origins:
+          - Id: StaticAssetsOrigin
+            DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref StaticAssetsOriginAccessControl
+        DefaultCacheBehavior:
+          TargetOriginId: StaticAssetsOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+        PriceClass: PriceClass_100
+
+  StaticAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticAssetsBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: "s3:GetObject"
+            Resource: !Sub "${StaticAssetsBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${StaticAssetsDistribution}"
 
 Outputs:
   SnapshotApi:
     Description: "API Gateway endpoint URL for Prod stage snapshot endpoints"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/snapshot/"
+
   SnapshotGetFunction:
     Description: "SnapshotGet Lambda Function ARN"
     Value: !GetAtt SnapshotGetFunction.Arn
+
   SnapshotGetFunctionIamRole:
     Description: "Implicit IAM Role created for SnapshotGet function"
     Value: !GetAtt SnapshotGetFunctionRole.Arn
 
   SnapshotBucketName:
-    Description: "S3 bucket for storing snapshot JSONs"
+    Description: "S3 bucket for storing snapshot JSONs (private)"
     Value: !Ref SnapshotBucket
-
-  MicromobilityDataTableName:
-    Description: "DynamoDB table for zone/timestamp data"
-    Value: !Ref MicromobilityDataTable
 
   SnapshotProcessorFunctionArn:
     Description: "Lambda that fetches, processes, and stores snapshots"
@@ -243,3 +262,11 @@ Outputs:
   SnapshotBackfillQueueUrl:
     Description: "SQS queue for snapshot backfill"
     Value: !Ref SnapshotBackfillQueue
+
+  StaticAssetsBucketName:
+    Description: "S3 bucket for static geo files (roadblocks, metro, h3 grid)"
+    Value: !Ref StaticAssetsBucket
+
+  StaticAssetsCdnDomain:
+    Description: "CloudFront domain for static geo assets"
+    Value: !GetAtt StaticAssetsDistribution.DomainName
