@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { sortSnapshotTimestamps } from "../lib/helper";
 import { TimestampSnapshot, ZoneType } from "@shared/types";
 import { MICROMOBILITY_ENDPOINT } from "@/lib/constants";
@@ -62,5 +62,6 @@ export const useGetSnapshots = (dateString: string, zoneType: ZoneType) => {
     queryKey: ["snapshots", dateString, zoneType],
     queryFn: () => getSnapshots(dateString, zoneType),
     staleTime: Infinity,
+    placeholderData: keepPreviousData,
   });
 };

@@ -32,7 +32,7 @@ export default function IconBar({
   barType,
 }: IconBarProps) {
   return (
-    <div className="flex flex-row justify-between border-b border-slate-200">
+    <div className="flex flex-row justify-between border-b border-gray-300">
       <PanelHeader
         label={barType === "TIME" ? "When" : "What"}
         title={barType === "TIME" ? "Date & Time" : "Layers & Providers"}
@@ -49,7 +49,7 @@ export default function IconBar({
                 type="button"
                 onClick={() => setActiveIconButton(activeIconButton === item.name ? "" : item.name)}
                 className={`rounded-full px-2.5 py-1 text-xs font-medium  transition hover:cursor-pointer
-              ${isActive ? "bg-lime-500 border-lime-600 text-white" : "text-gray-700"}`}
+              ${isActive ? "bg-slate-700 border-slate-700 text-white" : "text-slate-700"}`}
               >
                 <FontAwesomeIcon icon={item.icon} className="mr-1" />
                 <span className="whitespace-nowrap">{item.label}</span>

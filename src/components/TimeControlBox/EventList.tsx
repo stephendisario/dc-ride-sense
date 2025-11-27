@@ -44,16 +44,17 @@ const DC_EVENTS: DCEvent[] = [
 ];
 
 const EventsPanel = () => {
-  const { date, setDate, setHour } = useView();
+  const { date, setDate, setHour, setMonth } = useView();
 
   const handleSelectEvent = (eventDate: Date, hour: number) => {
     setDate(eventDate);
     setHour(hour);
+    setMonth(eventDate);
   };
 
   return (
-    <div className="rounded-lg border border-gray-300 bg-white/80 px-3 py-2 text-xs text-gray-800 shadow-sm backdrop-blur-sm">
-      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className="rounded-lg border border-gray-300 bg-white/80 px-3 py-2 text-xs text-slate-700 shadow-sm backdrop-blur-sm">
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
         DC Events
       </p>
 
@@ -68,8 +69,8 @@ const EventsPanel = () => {
               className={`flex w-full items-center justify-between rounded-md px-2 py-1 text-left transition cursor-pointer
                   ${
                     selected
-                      ? "bg-slate-200 text-gray-800"
-                      : "bg-white/0 text-gray-800 hover:bg-slate-100"
+                      ? "bg-slate-200 text-slate-700"
+                      : "bg-white/0 text-slate-700 hover:bg-slate-100"
                   }`}
             >
               <span className="truncate">{ev.label}</span>

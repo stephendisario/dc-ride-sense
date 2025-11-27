@@ -17,7 +17,7 @@
 }
 
 .rdp-root {
-  --rdp-accent-color: rgb(132 204 22);
+  --rdp-accent-color: oklch(20.8% 0.042 265.755);
 }
 
 

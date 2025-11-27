@@ -62,4 +62,4 @@ export enum DCLayerType {
     BIKE_LANES = "BIKE_LANES"
 }
 
-export type IconButton = 'CALENDAR' | 'EVENTS' | 'LAYERS' | ""
+export type IconButton = 'CALENDAR' | 'EVENTS' | 'LAYERS' | "SPARKLINE" |""

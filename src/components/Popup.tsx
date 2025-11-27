@@ -27,7 +27,7 @@ const formatHour = (hour: number): string => {
 };
 
 const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
-  const { activeHexLayer: metricLabel } = useView();
+  const { activeHexLayer } = useView();
   const { metricObj } = useHexMetrics();
   const hasSeries = !!series && series.length > 0;
   // eslint-disable-next-line
@@ -37,11 +37,9 @@ const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
 
   const displayValue = data[hourIndex ?? hour];
 
-  // Metric kind: 'delta' | 'density' | 'churn' | other
-  const metricKind = (metricLabel ?? "DELTA").toLowerCase();
-  const isDelta = metricKind === "delta";
-  const isDensity = metricKind === "density";
-  const isChurn = metricKind === "churn";
+  const isDelta = activeHexLayer === "delta";
+  const isDensity = activeHexLayer === "density";
+  const isChurn = activeHexLayer === "churn";
 
   const maxAbsDelta = useMemo(
     () => (data.length ? Math.max(...data.map((v) => Math.abs(v))) || 1 : 1),
@@ -57,7 +55,6 @@ const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
     setHourIndex(hour);
   }, [hour]);
 
-  // Header title + subtitle based on metric kind
   let headerTitle = "Delta";
   let headerSubtitle = "Hour-over-hour change in vehicle count";
 
@@ -90,7 +87,7 @@ const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
       {/* Header */}
       <div className="mb-1 flex items-start justify-between gap-2">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-700">
             {headerTitle}
           </div>
           <div className="text-[10px] text-slate-500">{headerSubtitle}</div>
@@ -101,7 +98,7 @@ const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
             popup?.remove();
             lockedHexRef.current = null;
           }}
-          className="text-slate-400 hover:text-slate-600"
+          className="text-slate-500 hover:text-slate-700"
         >
           {lockedHexRef.current && (
             <FontAwesomeIcon icon={faX} className="h-3 w-3 cursor-pointer" />
@@ -119,9 +116,6 @@ const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
           </span>
           <span className="text-sm leading-none ml-auto mr-auto">{valueText}</span>
         </div>
-        {/* <div className="font-mono text-[10px] tracking-wide text-slate-500">
-          {formatHour(hourIndex ?? hour)}
-        </div> */}
       </div>
 
       {hasSeries && (
@@ -186,7 +180,7 @@ const Popup = ({ popup, lockedHexRef, series, h3Id }: PopupProps) => {
 
           {/* Footer context */}
           <div className="mt-2 text-[10px] text-slate-500 flex justify-center">
-            Click a hex to interact with the popup.
+            Click a hex to lock and interact with the popup.
           </div>
         </>
       )}

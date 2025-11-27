@@ -2,11 +2,13 @@
 
 import { useEffect } from "react";
 import { useView } from "@/stores/views";
-import { HexLayerType, Providers } from "@shared/types";
+import { DCLayerType, HexLayerType, Providers } from "@shared/types";
 import { DC_LAYERS, HEX_LAYERS } from "@shared/constants";
 import { useLayerVisibility } from "@/hooks/useLayerVisibility";
 import { useProviderStore } from "@/stores/provider";
 import { isBefore } from "date-fns";
+import { faBicycle, faTrainSubway } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const providerColorClasses: Record<Providers, { selected: string; unselected: string }> = {
   [Providers.LIME]: {
@@ -114,13 +116,13 @@ const Layers = () => {
                     disabled={isDisabled}
                     type="button"
                     onClick={() => setHexLayer(layer)}
-                    className={`w-full rounded-full px-2.5 py-0.5 text-[11px] font-medium border text-center transition
+                    className={`w-full rounded-full px-2.5 py-0.5 text-[11px] font-medium border text-center transition cursor-pointer
                       ${
                         isDisabled
                           ? "bg-gray-100 border-gray-200 text-gray-400 opacity-50"
                           : activeHexLayer === layer
-                            ? "bg-lime-500 border-lime-600 text-white cursor-pointer"
-                            : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50 cursor-pointer"
+                            ? "bg-slate-700 border-slate-900 text-slate-100"
+                            : "bg-white/70 border-gray-300 text-slate-700 hover:bg-slate-50"
                       }`}
                   >
                     {layer.toUpperCase()}
@@ -141,21 +143,31 @@ const Layers = () => {
         <div className="flex items-center gap-2">
           <p className={LABEL_CLASS}>DC Layers</p>
           <div className="flex flex-wrap gap-1.5">
-            {DC_LAYERS.map((layer) => (
-              <button
-                key={layer}
-                type="button"
-                onClick={() => toggleDCLayer(layer)}
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium border transition hover:cursor-pointer
-                  ${
-                    activeDCLayers.includes(layer)
-                      ? "bg-lime-500 border-lime-600 text-white"
-                      : "bg-white/80 border-gray-300 text-gray-700 hover:bg-lime-50"
-                  }`}
-              >
-                {layer.split("_").join(" ")}
-              </button>
-            ))}
+            {DC_LAYERS.map((layer) => {
+              const isActive = activeDCLayers.includes(layer);
+
+              const icon = layer === DCLayerType.METRO ? faTrainSubway : faBicycle;
+
+              return (
+                <button
+                  key={layer}
+                  type="button"
+                  onClick={() => toggleDCLayer(layer)}
+                  className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
+            ${
+              isActive
+                ? "bg-slate-200 border-slate-400"
+                : "bg-white/70 border-gray-300 hover:bg-slate-50"
+            }`}
+                  aria-label={layer.split("_").join(" ")} // keep it accessible
+                >
+                  <FontAwesomeIcon
+                    icon={icon}
+                    className={`h-5 w-5 ${isActive ? "text-slate-700" : "text-slate-500"}`}
+                  />
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

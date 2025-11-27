@@ -1,4 +1,4 @@
-import { DCLayerType, HexLayerType } from "@shared/types";
+import { DCLayerType, HexLayerType, IconButton } from "@shared/types";
 import { subDays, startOfMonth } from "date-fns";
 import { Map } from "mapbox-gl";
 import { create } from "zustand";
@@ -23,6 +23,8 @@ type ViewState = {
   toggleDCLayer: (layer: DCLayerType) => void;
   month: Date;
   setMonth: (m: Date) => void;
+  activeIconButtons: IconButton[];
+  toggleActiveIconButtons: (button: IconButton) => void;
 };
 
 export const useView = create<ViewState>((set) => ({
@@ -53,4 +55,14 @@ export const useView = create<ViewState>((set) => ({
     }),
   month: startOfMonth(new Date()),
   setMonth: (month) => set({ month }),
+  activeIconButtons: ["SPARKLINE"],
+  toggleActiveIconButtons: (button) =>
+    set((state) => {
+      const isSelected = state.activeIconButtons.includes(button);
+      return {
+        activeIconButtons: isSelected
+          ? state.activeIconButtons.filter((p) => p !== button)
+          : [...state.activeIconButtons, button],
+      };
+    }),
 }));

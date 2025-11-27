@@ -23,10 +23,10 @@ import { useView } from "@/stores/views";
 import { useHexHover } from "@/hooks/useHexHover";
 import { useUpdateMapStyleOnChange } from "@/hooks/useUpdateMapStyleOnChange";
 import { useSnapshotsWithProviders } from "@/hooks/useSnapshotsWithProviders";
-import MapControlBox from "@/components/MapControlBox";
 import TimeControlBox from "../components/TimeControlBox";
 import IntroModal from "@/components/IntroModal";
 import HexLegend from "@/components/HexLegend";
+import FilterPills from "@/components/FilterPills";
 
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -92,9 +92,9 @@ const App = () => {
         <>
           <IntroModal />
           <Header />
+          <FilterPills />
           <TimeControlBox />
           <HexLegend />
-          <MapControlBox />
         </>
       )}
     </>
