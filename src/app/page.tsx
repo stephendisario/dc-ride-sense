@@ -24,7 +24,6 @@ import { useHexHover } from "@/hooks/useHexHover";
 import { useUpdateMapStyleOnChange } from "@/hooks/useUpdateMapStyleOnChange";
 import { useSnapshotsWithProviders } from "@/hooks/useSnapshotsWithProviders";
 import TimeControlBox from "../components/TimeControlBox";
-import IntroModal from "@/components/IntroModal";
 import HexLegend from "@/components/HexLegend";
 import FilterPills from "@/components/FilterPills";
 
@@ -90,7 +89,6 @@ const App = () => {
       <div className="h-screen w-screen" id="map-container" ref={mapContainerRef} />
       {mapRef.current && (
         <>
-          <IntroModal />
           <Header />
           <FilterPills />
           <TimeControlBox />

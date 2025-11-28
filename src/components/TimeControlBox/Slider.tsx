@@ -88,7 +88,7 @@ export default function Slider() {
       {/* Interesting hours row (always visible) */}
       <div className="px-1 text-xs text-gray-700">
         <div className="flex items-center justify-center gap-2">
-          <div className="group absolute left-15 flex items-center">
+          <div className="group absolute left-18 flex items-center">
             <FontAwesomeIcon
               icon={faFire}
               size="lg"

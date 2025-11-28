@@ -1,16 +1,17 @@
 "use client";
+
+import { useEffect } from "react";
 import { HexLayerType } from "@shared/types";
 import { useView } from "@/stores/views";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { isBefore } from "date-fns";
-import { useEffect } from "react";
 import { HEX_LAYERS } from "@shared/constants";
 
 const CHURN_AVAILABLE_FROM = new Date(2025, 10, 15); // 2025-11-15
 
 const Bar = ({ gradient }: { gradient: string }) => (
-  <div className="mb-1 h-3 w-full rounded-full border border-gray-200">
+  <div className="mb-1 h-3.5 w-full rounded-full border border-gray-200">
     <div className="h-full w-full rounded-full" style={{ background: gradient }} />
   </div>
 );
@@ -31,7 +32,7 @@ const DeltaLegendBody = () => (
         )
       "
     />
-    <div className="mt-1 flex justify-between text-[10px] text-slate-500">
+    <div className="mt-0.5 flex justify-between text-[11px] text-slate-600">
       <span>Fewer vehicles</span>
       <span>More vehicles</span>
     </div>
@@ -54,7 +55,7 @@ const DensityLegendBody = () => (
         )
       "
     />
-    <div className="mt-1 flex justify-between text-[10px] text-slate-500">
+    <div className="mt-0.5 flex justify-between text-[11px] text-slate-600">
       <span>1</span>
       <span>5</span>
       <span>20</span>
@@ -75,7 +76,7 @@ const ChurnLegendBody = () => (
         )
       "
     />
-    <div className="mt-1 flex justify-between text-[10px] text-slate-500">
+    <div className="mt-0.5 flex justify-between text-[11px] text-slate-600">
       <span>5</span>
       <span>10</span>
       <span>20+</span>
@@ -118,8 +119,8 @@ const HexLegend = () => {
   return (
     <div className="absolute bottom-4 right-1/2 translate-x-1/2">
       <div className="pointer-events-auto flex flex-col items-center gap-2">
-        {/* Hex layer segmented control in its own pill above the legend */}
-        <div className="flex flex-row items-center rounded-full border border-gray-300 bg-white/85 px-1 py-0.5 shadow-sm backdrop-blur-sm">
+        {/* Hex layer segmented control, centered above legend */}
+        <div className="flex flex-row items-center rounded-full border border-gray-300 bg-white/90 px-1.5 py-1 shadow-sm backdrop-blur-sm">
           {HEX_LAYERS.map((layer) => {
             const isActive = activeHexLayer === layer;
             const disabled =
@@ -128,25 +129,25 @@ const HexLegend = () => {
             const reason = "Churn is only available starting Nov 15, 2025.";
 
             return (
-              <div key={layer} className="flex">
+              <div key={layer} className="relative flex">
                 <button
                   type="button"
                   disabled={disabled}
                   onClick={() => setHexLayer(layer)}
-                  className={`peer justify-center px-3 py-0.5 rounded-full border text-[10px] transition cursor-pointer
+                  className={`peer justify-center px-3 py-0.5 rounded-full border text-[11px] font-medium uppercase tracking-wide transition cursor-pointer
                     ${
                       disabled
                         ? "bg-gray-100 border-gray-200 text-gray-400 opacity-50"
                         : isActive
-                          ? "bg-slate-700 border-slate-900 text-slate-100 shadow-sm font-bold"
-                          : "bg-white/80 border-transparent text-slate-700 hover:bg-slate-50 font-medium"
+                          ? "bg-slate-700 border-slate-900 text-slate-100 shadow-sm"
+                          : "bg-white/80 border-transparent text-slate-700 hover:bg-slate-50"
                     }`}
                 >
-                  {layer.toUpperCase()}
+                  {layer}
                 </button>
 
                 {disabled && (
-                  <div className="pointer-events-none absolute right-0 top-full mt-1 whitespace-nowrap rounded bg-slate-700 px-2 py-1 text-[10px] text-white opacity-0 shadow-md transition-opacity peer-hover:opacity-100">
+                  <div className="pointer-events-none absolute left-0 bottom-full mb-2 whitespace-nowrap rounded bg-slate-700 px-2 py-1 text-[11px] text-white opacity-0 shadow-md transition-opacity peer-hover:opacity-100">
                     {reason}
                   </div>
                 )}
@@ -156,40 +157,49 @@ const HexLegend = () => {
         </div>
 
         {/* Legend card below */}
-        <div className="w-[380px] h-[72px] rounded-lg border border-gray-300 bg-white/85 px-3 py-1 text-xs text-gray-800 shadow-sm backdrop-blur-sm flex flex-col justify-between">
-          <div className=" flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <div className="text-[11px] font-medium uppercase text-slate-700">{titleText}</div>
+        <div className="relative flex h-[80px] w-[480px] flex-col justify-between rounded-lg border border-gray-300 bg-white/90 px-4 py-2 text-[13px] text-slate-700 shadow-sm backdrop-blur-sm">
+          {/* Churn help icon - top right */}
+          {activeHexLayer === HexLayerType.CHURN && (
+            <div className="absolute right-2 top-1.5">
+              <div className="relative">
+                <button
+                  type="button"
+                  aria-label="What is churn?"
+                  className="peer flex items-center justify-center rounded-full border border-gray-300 bg-white/90 p-1 text-slate-700 transition hover:cursor-pointer hover:bg-slate-50"
+                >
+                  <FontAwesomeIcon icon={faCircleInfo} className="h-3.5 w-3.5" />
+                </button>
 
-              {activeHexLayer === HexLayerType.CHURN && (
-                <FontAwesomeIcon
-                  icon={faCircleInfo}
-                  className="cursor-pointer justify-center peer text-slate-700"
-                  size="sm"
-                />
-              )}
-
-              <div className="pointer-events-none absolute left-0 bottom-full z-10 mb-1 w-72 rounded-md bg-slate-700 px-2 py-1.5 text-[10px] leading-snug text-slate-100 opacity-0 shadow-lg transition-opacity peer-hover:opacity-100">
-                <p className="mb-1 text-[12px] font-semibold">What is Churn?</p>
-                <p>
-                  Churn counts how many vehicles entered <span className="font-semibold">plus</span>{" "}
-                  how many vehicles left a hex over the last hour.
-                </p>
-                <p className="mb-1 mt-1 text-[12px] font-semibold">
-                  How does it differ from Delta?
-                </p>
-                <p>
-                  Delta only shows the <span className="font-semibold">net change</span> in vehicle
-                  count. A hex can have a small delta but high churn if a lot of vehicles both
-                  arrive and leave; churn highlights these “hot” movement zones.
-                </p>
+                <div className="pointer-events-none absolute left-0 bottom-full z-10 mb-3 w-80 rounded-md bg-slate-700 px-3 py-2 text-[11px] leading-snug text-slate-100 opacity-0 shadow-lg transition-opacity peer-hover:opacity-100">
+                  <p className="mb-1 text-[13px] font-semibold">What is Churn?</p>
+                  <p>
+                    Churn counts how many vehicles entered{" "}
+                    <span className="font-semibold">plus</span> how many vehicles left a hex over
+                    the last hour.
+                  </p>
+                  <p className="mb-1 mt-2 text-[13px] font-semibold">
+                    How does it differ from Delta?
+                  </p>
+                  <p>
+                    Delta only shows the <span className="font-semibold">net change</span> in
+                    vehicle count. A hex can have a small delta but high churn if a lot of vehicles
+                    both arrive and leave; churn highlights these “hot” movement zones.
+                  </p>
+                </div>
               </div>
             </div>
+          )}
+
+          {/* Title + description inline */}
+          <div className="pr-10">
+            <span className="text-[13px] font-semibold uppercase tracking-wide text-slate-700">
+              {titleText}
+            </span>
+            <span className="ml-2 text-[12px] text-slate-600">{descriptionText}</span>
           </div>
 
-          <div className="text-[10px] text-slate-500 relative top-[-4px]">{descriptionText}</div>
-
-          <div className="">
+          {/* Gradient + ticks */}
+          <div className="mt-1">
             {activeHexLayer === HexLayerType.DELTA && <DeltaLegendBody />}
             {activeHexLayer === HexLayerType.DENSITY && <DensityLegendBody />}
             {activeHexLayer === HexLayerType.CHURN && <ChurnLegendBody />}

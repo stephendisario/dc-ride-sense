@@ -10,28 +10,26 @@ const Header = () => {
 
   return (
     <>
-      <div className="absolute left-4 top-4 z-10 ">
-        <div className="rounded-lg border border-gray-300 bg-white px-2 py-2 text-xs text-slate-800 shadow-md">
+      <div className="absolute left-4 top-4 z-10">
+        <div className="rounded-lg border border-gray-300 bg-white/95 px-3 py-2 text-[13px] text-slate-700 shadow-md backdrop-blur-sm w-[370px]">
           {/* Title + subtitle + info icon */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex flex-col">
-              <div className="flex items-baseline gap-2">
-                <span className="text-[16px] font-semibold tracking-wider text-slate-900">
-                  DC Ride Sense
-                </span>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-1 flex-col">
+              <span className="text-[15px] font-semibold tracking-tight text-slate-800">
+                DC Ride Sense
+              </span>
               <span className="text-[12px] text-slate-500">
-                Explore micromobility patterns across DC
+                Explore how micromobility is used throughout DC
               </span>
             </div>
 
             <button
               type="button"
               onClick={() => setShowIntro(true)}
-              className="mt-[2px] text-gray-700 cursor-pointer"
+              className="flex items-center justify-center rounded-full border border-gray-300 bg-white/90 p-1.5 text-slate-700 shadow-sm transition hover:cursor-pointer hover:bg-slate-50"
               aria-label="About DC Ride Sense"
             >
-              <FontAwesomeIcon icon={faCircleInfo} className="h-3.5 w-3.5" />
+              <FontAwesomeIcon icon={faCircleInfo} className="h-4 w-4" />
             </button>
           </div>
         </div>
