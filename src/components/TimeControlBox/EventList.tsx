@@ -53,10 +53,13 @@ const EventsPanel = () => {
   };
 
   return (
-    <div className="rounded-lg border border-gray-300 bg-white/80 px-3 py-2 text-xs text-slate-700 shadow-sm backdrop-blur-sm">
-      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-        DC Events
-      </p>
+    <div className="flex flex-col rounded-lg border border-gray-300 bg-white/80 px-3 py-2 text-xs text-slate-700 shadow-sm backdrop-blur-sm">
+      <div className="inline-flex justify-between w-full items-end">
+        <p className="text-[10px] uppercase font-semibold tracking-wide text-slate-700">Events</p>
+        <p className="text-[10px] text-slate-500">Jump to busy days</p>
+      </div>
+
+      <span className="w-full h-px bg-gray-300 mb-2 mt-1" />
 
       <div className="flex flex-col gap-1">
         {DC_EVENTS.map((ev) => {

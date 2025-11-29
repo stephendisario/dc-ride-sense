@@ -18,22 +18,15 @@ import {
   faCalendarDay,
 } from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "@shared/types";
-import Calendar from "./Calendar";
+import Calendar, { DISABLED_DAYS } from "./Calendar";
 import EventsPanel from "./EventList";
 
 const START = new Date(2025, 4, 1);
 const YESTERDAY = startOfDay(subDays(new Date(), 1));
 const END = YESTERDAY;
 
-const DISABLED_DAYS = [
-  new Date(2025, 6, 26),
-  new Date(2025, 9, 20),
-  new Date(2025, 10, 13),
-  new Date(2025, 10, 14),
-];
-
 export default function DatePicker() {
-  const { date, setDate, month, setMonth, activeIconButtons, toggleActiveIconButtons } = useView();
+  const { date, setDate, month, setMonth, activeIconButton, setActiveIconButton } = useView();
 
   const isDisabledDate = (d: Date) => DISABLED_DAYS.some((disabled) => isSameDay(disabled, d));
 
@@ -51,16 +44,16 @@ export default function DatePicker() {
   };
 
   const toggleIcon = (name: IconButton) => {
-    toggleActiveIconButtons(name);
+    setActiveIconButton(name === activeIconButton ? "" : name);
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Popovers */}
-      <div className={!activeIconButtons.includes("EVENTS") ? "hidden" : ""}>
+      <div className={activeIconButton !== "EVENTS" ? "hidden" : ""}>
         <EventsPanel />
       </div>
-      <div className={!activeIconButtons.includes("CALENDAR") ? "hidden" : ""}>
+      <div className={activeIconButton !== "CALENDAR" ? "hidden" : ""}>
         <Calendar />
       </div>
 
@@ -99,7 +92,7 @@ export default function DatePicker() {
             <button
               onClick={() => stepDay("down")}
               disabled={date <= START}
-              className="px-2 flex items-center justify-center text-slate-500 hover:text-slate-700 disabled:opacity-40 hover:cursor-pointer border-r border-gray-200"
+              className="px-2 flex items-center justify-center text-slate-700 hover:bg-slate-50 disabled:opacity-40 hover:cursor-pointer border-r border-gray-200"
               aria-label="Previous day"
             >
               <FontAwesomeIcon icon={faChevronLeft} className="h-3 w-3" />
@@ -116,7 +109,7 @@ export default function DatePicker() {
               <span className="text-[10px] uppercase tracking-[0.16em] text-slate-500">
                 {format(date, "EEE")}
               </span>
-              <span className="tabular-nums text-slate-800 font-semibold truncate">
+              <span className="tabular-nums text-slate-700 font-semibold truncate">
                 {format(date, "MMM d, yyyy")}
               </span>
             </button>
@@ -125,7 +118,7 @@ export default function DatePicker() {
             <button
               onClick={() => stepDay("up")}
               disabled={date >= END}
-              className="px-2 flex items-center justify-center text-slate-500 hover:text-slate-700 disabled:opacity-40 hover:cursor-pointer border-l border-gray-200"
+              className="px-2 flex items-center justify-center text-slate-700 hover:bg-slate-50 disabled:opacity-40 hover:cursor-pointer border-l border-gray-200"
               aria-label="Next day"
             >
               <FontAwesomeIcon icon={faChevronRight} className="h-3 w-3" />
@@ -138,7 +131,7 @@ export default function DatePicker() {
             onClick={() => toggleIcon("EVENTS")}
             className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
               ${
-                activeIconButtons.includes("EVENTS")
+                activeIconButton === "EVENTS"
                   ? "bg-slate-700 border-slate-700 text-white"
                   : "text-slate-700 border-gray-300 bg-white/90 hover:bg-slate-50"
               }`}

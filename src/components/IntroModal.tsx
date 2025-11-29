@@ -58,9 +58,7 @@ const IntroModal = ({ manualOpen = false, onCloseManual }: IntroModalProps) => {
             <div className="text-lg font-semibold tracking-tight text-slate-800">
               Welcome to DC Ride Sense
             </div>
-            <div className="mt-0.5 text-[13px] text-slate-500">
-              Explore how micromobility is used throughout DC
-            </div>
+            <div className="mt-0.5 text-[13px] text-slate-500">Explore micromobility patterns</div>
           </div>
           <button
             type="button"
@@ -80,9 +78,9 @@ const IntroModal = ({ manualOpen = false, onCloseManual }: IntroModalProps) => {
               How it works
             </div>
             <p className="leading-snug text-slate-700">
-              Every hour, DC Ride Sense captures a snapshot of free micromobility vehicles in DC.
-              Their coordinates are then aggregated into hex-level metrics that power the Activity
-              sparkline and the Delta, Density, and Churn map layers.
+              Every hour, DC Ride Sense captures a snapshot of parked micromobility (scooters and
+              bikes) vehicles in DC. Their coordinates are then aggregated into hex-level metrics
+              that power the Activity sparkline and the Delta, Density, and Churn map layers.
             </p>
           </div>
 
@@ -115,7 +113,7 @@ const IntroModal = ({ manualOpen = false, onCloseManual }: IntroModalProps) => {
         {/* Footer note + button */}
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-[12px] text-slate-500 leading-snug">
-            Trip counts are approximate and should be considered a lower-bound estimate.
+            Trip counts are approximate and should be considered lower-bound estimates.
           </div>
           <div className="flex justify-end">
             <button

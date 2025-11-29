@@ -22,12 +22,11 @@ const formatHourLabel = (h: number) => {
 };
 
 export default function Slider() {
-  const { date, hour, setHour, interestingHours, activeIconButtons } = useView();
+  const { date, hour, setHour, interestingHours } = useView();
   const { selectedProviders } = useProviderStore();
 
   useInterestingHours();
 
-  const showSparkline = activeIconButtons.includes("SPARKLINE");
   const [isLocked, setIsLocked] = useState(false);
 
   // --- Interesting hours chips ---
@@ -65,7 +64,6 @@ export default function Slider() {
     });
   }, [bundle, selectedProviders]);
 
-  console.log(activitySeries);
   const hasActivity = activitySeries.length > 0;
 
   const maxVal = hasActivity && Math.max(...activitySeries) > 0 ? Math.max(...activitySeries) : 1;
@@ -125,11 +123,7 @@ export default function Slider() {
 
       {/* Sparkline box */}
       <div
-        className={`relative rounded-md transition-all duration-500 overflow-hidden cursor-pointer ${
-          showSparkline
-            ? "p-2 border-gray-300 border opacity-100 max-h-60"
-            : "opacity-0 max-h-0 -mt-3"
-        }`}
+        className={`relative rounded-md transition-all duration-500 overflow-hidden cursor-pointer ${"p-2 border-gray-300 border opacity-100 max-h-60"}`}
         onClick={() => setIsLocked((prev) => !prev)}
       >
         {/* Header: title + day total chip */}
@@ -205,7 +199,7 @@ export default function Slider() {
                 showHighlight
                 clipAreaOffset={{ top: 6, bottom: 6 }}
                 axisHighlight={{ x: "line" }}
-                margin={{ left: 0, right: 0, top: 6, bottom: 6 }}
+                margin={{ left: 4, right: 4, top: 6, bottom: 6 }}
                 onHighlightedAxisChange={(axisItems) => {
                   if (isLocked) return;
 
@@ -269,11 +263,7 @@ export default function Slider() {
       </div>
 
       {/* Time + count pill (outside box, when sparkline hidden) */}
-      <div
-        className={`flex justify-center transition-all ${
-          showSparkline ? "opacity-0 max-h-0" : "opacity-100 max-h-40 duration-1000"
-        }`}
-      >
+      <div className={`flex justify-center transition-all ${"opacity-0 max-h-0"}`}>
         <div
           className={`inline-flex items-center gap-2 rounded-md bg-slate-700 px-3 py-1.5 font-mono text-[11px] text-slate-50 shadow-sm
             ${isLoadingSnapshots ? "opacity-70 blur-[0.5px] animate-pulse" : ""}`}
@@ -290,7 +280,7 @@ export default function Slider() {
       </div>
 
       {/* Slider (visible when sparkline hidden) */}
-      {!showSparkline && (
+      {/* {!showSparkline && (
         <div className="w-full flex justify-center">
           <input
             type="range"
@@ -302,7 +292,7 @@ export default function Slider() {
             className="w-[260px] accent-slate-700 h-1.5 bg-gray-200/40 rounded-lg cursor-pointer"
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 }

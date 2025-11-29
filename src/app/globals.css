@@ -15,9 +15,110 @@
 .mapboxgl-popup-tip {
   @apply !border-t-white/60
 }
-
+/* Root & accent */
 .rdp-root {
-  --rdp-accent-color: oklch(20.8% 0.042 265.755);
+  --rdp-accent-color: #334155;
+  --rdp-background-color: #ffffff;
+  --rdp-accent-color-dark: oklch(20.8% 0.042 265.755);
+  --rdp-outline: 2px solid color-mix(in oklab, var(--rdp-accent-color) 60%, white);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
 }
 
+/* Month caption (month + year) */
+.rdp-caption_label {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600;
+  color: #334155; /* slate-700 */
+  letter-spacing: 0.025em;
+}
 
+/* Caption wrapper */
+.rdp-month_caption {
+  height: 2rem !important;
+  display: flex;
+  align-items: center;
+  padding-top: 8px;
+}
+
+/* Nav buttons (next/prev) */
+.rdp-button_next,
+.rdp-button_previous {
+  height: 2rem !important;
+  width: 2rem;
+  padding-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b; /* slate-500 */
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.rdp-button_next:hover,
+.rdp-button_previous:hover {
+  color: #334155; /* slate-700 */
+}
+
+/* Weekday header row (Mon, Tue, etc.) */
+.rdp-weekday {
+  font-size: 10px; 
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #334155; /* slate-700 */
+  padding-bottom: 0.25rem;
+}
+
+/* Day cells */
+.rdp-day {
+  width: 44px;
+  height: 32px;
+  text-align: center;
+  color: #334155; /* slate-500 */
+  font-size: 12px; /* text-xs */
+}
+
+.rdp-day_button {
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+/* Hover */
+.rdp-day_button:hover {
+  color: #334155; /* slate-700 */
+}
+
+/* Today */
+.rdp-day_today .rdp-day_button {
+  font-weight: 600;
+  color: #334155; /* slate-700 */
+  box-shadow: 0 0 0 1px #cbd5f5; /* subtle ring */
+}
+
+/* Selected day */
+.rdp-day_selected .rdp-day_button,
+.rdp-day_selected:focus-visible .rdp-day_button {
+  background-color: var(--rdp-accent-color);
+  color: #ffffff;
+}
+
+/* Disabled / outside days */
+.rdp-day_disabled,
+.rdp-day_outside {
+  color: #9ca3af;   /* text-gray-400 */
+  opacity: 0.5;     /* opacity-50 */
+}
+
+.rdp-day:not(.rdp-outside) {
+  cursor: default !important;
+}
+
+/* Focus outline (keyboard nav) */
+.rdp-day_button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--rdp-accent-color) 75%, white);
+}

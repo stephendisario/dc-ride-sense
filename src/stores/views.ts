@@ -23,8 +23,8 @@ type ViewState = {
   toggleDCLayer: (layer: DCLayerType) => void;
   month: Date;
   setMonth: (m: Date) => void;
-  activeIconButtons: IconButton[];
-  toggleActiveIconButtons: (button: IconButton) => void;
+  activeIconButton: IconButton;
+  setActiveIconButton: (button: IconButton) => void;
 };
 
 export const useView = create<ViewState>((set) => ({
@@ -55,14 +55,6 @@ export const useView = create<ViewState>((set) => ({
     }),
   month: startOfMonth(new Date()),
   setMonth: (month) => set({ month }),
-  activeIconButtons: ["SPARKLINE"],
-  toggleActiveIconButtons: (button) =>
-    set((state) => {
-      const isSelected = state.activeIconButtons.includes(button);
-      return {
-        activeIconButtons: isSelected
-          ? state.activeIconButtons.filter((p) => p !== button)
-          : [...state.activeIconButtons, button],
-      };
-    }),
+  activeIconButton: "",
+  setActiveIconButton: (activeIconButton) => set({ activeIconButton }),
 }));

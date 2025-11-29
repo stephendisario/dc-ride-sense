@@ -134,13 +134,13 @@ const HexLegend = () => {
                   type="button"
                   disabled={disabled}
                   onClick={() => setHexLayer(layer)}
-                  className={`peer justify-center px-3 py-0.5 rounded-full border text-[11px] font-medium uppercase tracking-wide transition cursor-pointer
+                  className={`peer justify-center px-3 py-0.5 rounded-full border text-[11px] font-medium uppercase tracking-wide transition
                     ${
                       disabled
-                        ? "bg-gray-100 border-gray-200 text-gray-400 opacity-50"
+                        ? "bg-gray-100 border-gray-200 text-gray-400 opacity-50 cursor-default"
                         : isActive
-                          ? "bg-slate-700 border-slate-900 text-slate-100 shadow-sm"
-                          : "bg-white/80 border-transparent text-slate-700 hover:bg-slate-50"
+                          ? "bg-slate-700 border-slate-900 text-slate-100 shadow-sm cursor-pointer"
+                          : "bg-white/80 border-transparent text-slate-700 hover:bg-slate-50 cursor-pointer"
                     }`}
                 >
                   {layer}

@@ -17,13 +17,14 @@ const extractProvidersFromSnapshot = (snapshot: TimestampSnapshot): Providers[] 
 export const useSnapshotsWithProviders = () => {
   const { date } = useView();
   const { data: bundle } = useGetSnapshots(format(date, "yyyy-MM-dd"), ZoneType.ZoneH3_9);
-  const { setSelectedProviders, setAvailableProviders } = useProviderStore();
+  const { selectedProviders, setSelectedProviders, setAvailableProviders } = useProviderStore();
 
   useEffect(() => {
     if (!bundle) return;
 
     const providers = extractProvidersFromSnapshot(bundle);
-    setSelectedProviders(providers);
+    //TODO: put this in zustand - prevent provider update on day change
+    if (selectedProviders.length === 0) setSelectedProviders(providers);
     setAvailableProviders(providers);
-  }, [bundle, setSelectedProviders, setAvailableProviders]);
+  }, [bundle, selectedProviders, setSelectedProviders, setAvailableProviders]);
 };
