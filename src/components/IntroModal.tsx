@@ -54,11 +54,11 @@ const IntroModal = ({ manualOpen = false, onCloseManual }: IntroModalProps) => {
       >
         {/* Header */}
         <div className="mb-3 flex items-start justify-between gap-2">
-          <div>
+          <div className="flex flex-col">
             <div className="text-lg font-semibold tracking-tight text-slate-800">
               Welcome to DC Ride Sense
             </div>
-            <div className="mt-0.5 text-[13px] text-slate-500">Explore micromobility patterns</div>
+            <div className=" text-[13px] text-slate-500">Explore micromobility patterns</div>
           </div>
           <button
             type="button"
@@ -111,10 +111,19 @@ const IntroModal = ({ manualOpen = false, onCloseManual }: IntroModalProps) => {
         </div>
 
         {/* Footer note + button */}
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-[12px] text-slate-500 leading-snug">
-            Trip counts are approximate and should be considered lower-bound estimates.
+        <div className="mt-4 border-t border-slate-200 pt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-md space-y-1">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">
+              Data notes
+            </div>
+            <p className="text-[12px] leading-snug text-slate-500">
+              Trip counts are approximate and should be treated as lower-bound estimates.
+            </p>
+            <p className="text-[12px] leading-snug text-slate-500">
+              Some movement may reflect operator rebalancing rather than rider trips.
+            </p>
           </div>
+
           <div className="flex justify-end">
             <button
               type="button"
