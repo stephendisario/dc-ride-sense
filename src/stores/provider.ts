@@ -11,7 +11,11 @@ type ProviderState = {
 
 export const useProviderStore = create<ProviderState>((set) => ({
   selectedProviders: [],
-  setSelectedProviders: (providers) => set({ selectedProviders: providers }),
+  setSelectedProviders: (availableProviders) =>
+    set((state) => ({
+      selectedProviders:
+        state.selectedProviders.length === 0 ? availableProviders : state.selectedProviders,
+    })),
   availableProviders: [],
   setAvailableProviders: (availableProviders) => set({ availableProviders }),
   toggleProvider: (provider) =>

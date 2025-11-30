@@ -86,7 +86,7 @@ export default function Slider() {
       {/* Interesting hours row (always visible) */}
       <div className="px-1 text-xs text-gray-700">
         <div className="flex items-center justify-center gap-2">
-          <div className="group absolute left-18 flex items-center">
+          <div className="group absolute left-15 flex items-center">
             <FontAwesomeIcon
               icon={faFire}
               size="lg"
@@ -101,13 +101,13 @@ export default function Slider() {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-[195px] justify-center">
             {presetButtons.map((p) => (
               <button
                 key={p.value}
                 type="button"
                 onClick={() => setHour(p.value)}
-                className={`px-2.5 py-0.5 rounded-full border transition text-xs hover:cursor-pointer
+                className={`font-mono flex-1 px-2.5 py-0.5 rounded-full border transition text-xs hover:cursor-pointer
                   ${
                     hour === p.value
                       ? "bg-slate-700 border-slate-900 text-slate-100"
@@ -263,7 +263,7 @@ export default function Slider() {
       </div>
 
       {/* Time + count pill (outside box, when sparkline hidden) */}
-      <div className={`flex justify-center transition-all ${"opacity-0 max-h-0"}`}>
+      {/* <div className={`flex justify-center transition-all ${"opacity-0 max-h-0"}`}>
         <div
           className={`inline-flex items-center gap-2 rounded-md bg-slate-700 px-3 py-1.5 font-mono text-[11px] text-slate-50 shadow-sm
             ${isLoadingSnapshots ? "opacity-70 blur-[0.5px] animate-pulse" : ""}`}
@@ -277,7 +277,7 @@ export default function Slider() {
               : "–"}
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Slider (visible when sparkline hidden) */}
       {/* {!showSparkline && (

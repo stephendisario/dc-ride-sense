@@ -16,7 +16,7 @@ const Header = () => {
           {/* Title + subtitle + info icon */}
           <div className="inline-flex w-full items-center gap-2">
             <Image src="/icon.jpg" alt="DC Ride Sense logo" width={60} height={60} />
-            <span className="h-12 w-px bg-gray-300" />
+            <span className="h-12 w-px bg-gray-200" />
 
             <div className="flex flex-1 flex-col">
               <span className="text-[15px] font-semibold tracking-tight text-slate-800">

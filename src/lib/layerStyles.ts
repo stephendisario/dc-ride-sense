@@ -33,7 +33,7 @@ export const H3_9_LAYER_STYLE: FillLayerSpecification = {
   source: H3_9_SOURCE_ID,
   paint: {
     "fill-outline-color": "#d1d5db",
-    "fill-color": "#f1f5f9",
+    "fill-color": "transparent",
     "fill-opacity": 0.6,
   },
 };
@@ -52,8 +52,7 @@ export const METRO_STATION_LAYER_STYLE: CircleLayerSpecification = {
 };
 
 export const updateHexColorsLoading = (map: Map) => {
-  map.setPaintProperty(H3_9_LAYER_ID, "fill-outline-color", "#d1d5db");
-  map.setPaintProperty(H3_9_LAYER_ID, "fill-color", "#f1f5f9");
+  map.setPaintProperty(H3_9_LAYER_ID, "fill-opacity", 0.3);
 };
 
 export const updateHexColorsDelta = (map: Map, delta: Record<string, number>) => {
@@ -102,27 +101,32 @@ export const updateHexColorsDelta = (map: Map, delta: Record<string, number>) =>
 
 export const updateHexColorsDensity = (map: Map, density: Record<string, number>) => {
   const logMin = Math.log(1);
-  const logMax = Math.log(101);
+  const logMax = Math.log(100);
   const logRange = logMax - logMin;
 
-  const color0 = "transparent";
-  const color1 = "#1b5d8a";
-  const color2 = "#238a91";
-  const color3 = "#2fab84";
-  const color4 = "#64c06b";
-  const color5 = "#9cd256";
-  const color6 = "#d7e24b";
-  const color7 = "#fff3a6";
+  const noData = "#f1f5f9"; // background / no vehicles
+
+  // Indices in L16: [0, 32, 64, 96, 128, 160, 192, 224]
+  const color0 = "#1D1B20"; // very dark, near-black
+  const color1 = "#1F1B98"; // deep indigo
+  const color2 = "#0741B8"; // strong blue
+  const color3 = "#146D9D"; // teal-ish blue
+  const color4 = "#329453"; // green
+  const color5 = "#65B21A"; // yellow-green
+  const color6 = "#B1C805"; // green-yellow
+  const color7 = "#EEDF2F"; // bright yellow, but not near-white
 
   const expr: ExpressionSpecification = [
     "case",
-    // missing id => transparent
+    // missing id => background
     ["!", ["has", ["id"], ["literal", density]]],
-    "#f1f5f9",
-    // below min => transparent
+    noData,
+
+    // below min => background
     ["<", ["get", ["id"], ["literal", density]], 1],
-    "#f1f5f9",
-    // otherwise interpolate
+    noData,
+
+    // log-scaled interpolate dark -> light
     [
       "interpolate",
       ["linear"],

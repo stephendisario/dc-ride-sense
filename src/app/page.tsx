@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import mapboxgl, { Map as MapboxMap } from "mapbox-gl";
+import mapboxgl, { LngLatBoundsLike, Map as MapboxMap } from "mapbox-gl";
 import {
   BIKE_LANES_LAYER_ID,
   BIKE_LANES_SOURCE_ID,
@@ -44,11 +44,17 @@ const App = () => {
 
     mapboxgl.accessToken = mapboxToken;
 
+    const DC_BOUNDS: LngLatBoundsLike = [
+      [-77.35, 38.6],
+      [-76.75, 39.2],
+    ];
+
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/light-v11",
       center: INITIAL_CENTER,
       zoom: INITIAL_ZOOM,
+      maxBounds: DC_BOUNDS,
     });
 
     map.on("load", () => {

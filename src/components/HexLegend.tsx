@@ -7,6 +7,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { isBefore } from "date-fns";
 import { HEX_LAYERS } from "@shared/constants";
+import {
+  CHURN_RANGE_MAX,
+  CHURN_RANGE_MIN,
+  DELTA_RANGE_MAX,
+  DELTA_RANGE_MIN,
+  DENSITY_RANGE_MAX,
+  DENSITY_RANGE_MIN,
+} from "@/lib/constants";
 
 const CHURN_AVAILABLE_FROM = new Date(2025, 10, 15); // 2025-11-15
 
@@ -33,8 +41,20 @@ const DeltaLegendBody = () => (
       "
     />
     <div className="mt-0.5 flex justify-between text-[11px] text-slate-600">
-      <span>Fewer vehicles</span>
-      <span>More vehicles</span>
+      <div className="flex items-start text-[10px] text-slate-600">
+        <span
+          className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
+        >
+          {DELTA_RANGE_MIN}
+        </span>
+      </div>
+      <div className="flex items-start text-[10px] text-slate-600">
+        <span
+          className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
+        >
+          {DELTA_RANGE_MAX}
+        </span>
+      </div>
     </div>
   </>
 );
@@ -43,23 +63,34 @@ const DensityLegendBody = () => (
   <>
     <Bar
       gradient="
-        linear-gradient(
-          to right,
-          #1b5d8a,
-          #238a91,
-          #2fab84,
-          #64c06b,
-          #9cd256,
-          #d7e24b,
-          #fff3a6
-        )
-      "
+    linear-gradient(
+      to right,
+      #1D1B20,
+      #1F1B98,
+      #0741B8,
+      #146D9D,
+      #329453,
+      #65B21A,
+      #B1C805,
+      #EEDF2F
+    )
+  "
     />
     <div className="mt-0.5 flex justify-between text-[11px] text-slate-600">
-      <span>1</span>
-      <span>5</span>
-      <span>20</span>
-      <span>100+</span>
+      <div className="flex items-start text-[10px] text-slate-600">
+        <span
+          className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
+        >
+          {DENSITY_RANGE_MIN}
+        </span>
+      </div>
+      <div className="flex items-start text-[10px] text-slate-600">
+        <span
+          className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
+        >
+          {DENSITY_RANGE_MAX}
+        </span>
+      </div>
     </div>
   </>
 );
@@ -77,9 +108,20 @@ const ChurnLegendBody = () => (
       "
     />
     <div className="mt-0.5 flex justify-between text-[11px] text-slate-600">
-      <span>5</span>
-      <span>10</span>
-      <span>20+</span>
+      <div className="flex items-start text-[10px] text-slate-600">
+        <span
+          className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
+        >
+          {CHURN_RANGE_MIN}
+        </span>
+      </div>
+      <div className="flex items-start text-[10px] text-slate-600">
+        <span
+          className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
+        >
+          {CHURN_RANGE_MAX}
+        </span>
+      </div>
     </div>
   </>
 );

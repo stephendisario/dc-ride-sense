@@ -93,8 +93,8 @@ const FilterPills = () => {
                   toggleDCLayer(layer);
                   console.log(layer);
                 }}
-                className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer hover:bg-slate-50
-                  ${isActive ? "bg-slate-700 border-slate-700 text-white" : "text-slate-700 border-gray-300"}`}
+                className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
+                  ${isActive ? "bg-slate-700 border-slate-700 text-white" : "text-slate-700 border-gray-300 hover:bg-slate-50"}`}
               >
                 <FontAwesomeIcon icon={icon} className={`h-4 w-4 `} />
               </button>

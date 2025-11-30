@@ -7,10 +7,10 @@ import {
   updateHexColorsChurn,
   updateHexColorsDelta,
   updateHexColorsDensity,
-  updateHexColorsLoading,
 } from "@/lib/layerStyles";
 import { useProviderStore } from "@/stores/provider";
 import { useHexMetrics } from "./useHexMetrics";
+import { H3_9_LAYER_ID } from "@/lib/constants";
 
 export const useUpdateMapStyleOnChange = () => {
   const { date, hour, isMapLoading, activeHexLayer, map } = useView();
@@ -18,7 +18,7 @@ export const useUpdateMapStyleOnChange = () => {
 
   const { metricObj } = useHexMetrics();
 
-  const { data: bundle, isLoading: isBundleLoading } = useGetSnapshots(
+  const { data: bundle, isFetching } = useGetSnapshots(
     format(date, "yyyy-MM-dd"),
     ZoneType.ZoneH3_9
   );
@@ -26,22 +26,14 @@ export const useUpdateMapStyleOnChange = () => {
   useEffect(() => {
     if (!map) return;
 
-    if (isBundleLoading || !bundle || !metricObj) {
-      updateHexColorsLoading(map);
+    if (isFetching || !bundle || !metricObj) {
+      map.setPaintProperty(H3_9_LAYER_ID, "fill-opacity", 0.3);
       return;
     }
 
+    map.setPaintProperty(H3_9_LAYER_ID, "fill-opacity", 0.6);
     if (activeHexLayer === HexLayerType.DELTA) updateHexColorsDelta(map, metricObj);
     else if (activeHexLayer === HexLayerType.DENSITY) updateHexColorsDensity(map, metricObj);
     else if (activeHexLayer === HexLayerType.CHURN) updateHexColorsChurn(map, metricObj);
-  }, [
-    bundle,
-    hour,
-    map,
-    isBundleLoading,
-    isMapLoading,
-    activeHexLayer,
-    selectedProviders,
-    metricObj,
-  ]);
+  }, [bundle, hour, map, isMapLoading, activeHexLayer, selectedProviders, metricObj, isFetching]);
 };

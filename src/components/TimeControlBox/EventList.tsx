@@ -59,7 +59,7 @@ const EventsPanel = () => {
         <p className="text-[10px] text-slate-500">Jump to busy days</p>
       </div>
 
-      <span className="w-full h-px bg-gray-300 mb-2 mt-1" />
+      <span className="w-full h-px bg-gray-200 mb-2 mt-1" />
 
       <div className="flex flex-col gap-1">
         {DC_EVENTS.map((ev) => {
