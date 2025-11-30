@@ -92,7 +92,11 @@ const App = () => {
 
   return (
     <>
-      <div className="h-screen w-screen" id="map-container" ref={mapContainerRef} />
+      <div
+        className="h-[100dvh] w-screen"
+        id="map-container"
+        ref={mapContainerRef}
+      />
       {mapRef.current && (
         <>
           <Header />

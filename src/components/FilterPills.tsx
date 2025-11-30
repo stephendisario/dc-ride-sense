@@ -30,10 +30,17 @@ const FilterPills = () => {
   useLayerVisibility();
 
   return (
-    <div className="fixed top-4 left-1/2 z-20 -translate-x-1/2">
-      <div className="flex items-center gap-3 rounded-full border border-gray-300 bg-white/85 px-3 py-1 shadow-sm backdrop-blur-sm">
+    <div
+      className="
+        fixed z-20
+        top-3 right-3                         /* mobile: top-right, opposite the logo */
+        sm:top-4 sm:left-1/2 sm:right-auto    /* sm+: centered */
+        sm:-translate-x-1/2
+      "
+    >
+      <div className="flex items-center gap-3 rounded-full border border-gray-300 bg-white/85 px-2.5 py-1 shadow-sm backdrop-blur-sm sm:px-3">
         {/* Providers */}
-        <div className="flex gap-1.5 justify-center items-center">
+        <div className="flex items-center justify-center gap-1.5">
           {Object.values(Providers).map((provider) => {
             const isAvailable = availableProviders.includes(provider);
             const isChurnBlocked =
@@ -50,12 +57,12 @@ const FilterPills = () => {
             const colorClasses = providerColorClasses[provider];
 
             return (
-              <div key={provider} className="flex">
+              <div key={provider} className="relative flex">
                 <button
                   type="button"
                   disabled={isDisabled}
                   onClick={() => !isDisabled && toggleProvider(provider)}
-                  className={`peer rounded-full px-2.5 py-0.5 text-[11px] font-medium border transition justify-center
+                  className={`peer rounded-full px-2.5 py-0.5 text-[11px] font-medium border transition
                       ${
                         isDisabled
                           ? "bg-gray-100 border-gray-200 text-gray-400 opacity-50"
@@ -68,7 +75,7 @@ const FilterPills = () => {
                 </button>
 
                 {isDisabled && reason && (
-                  <div className="pointer-events-none absolute left-0 top-full mt-1 whitespace-nowrap rounded bg-slate-700 px-2 py-1 text-[10px] text-slate-100 opacity-0 peer-hover:opacity-100">
+                  <div className="pointer-events-none absolute left-0 top-full mt-1 whitespace-nowrap rounded bg-slate-700 px-2 py-1 text-[10px] text-slate-100 opacity-0 shadow-md transition-opacity peer-hover:opacity-100">
                     {reason}
                   </div>
                 )}
@@ -78,7 +85,7 @@ const FilterPills = () => {
         </div>
 
         {/* Divider */}
-        <span className="h-5 w-px bg-gray-200" />
+        <span className="hidden h-5 w-px bg-gray-200 sm:block" />
 
         {/* DC Layers icons */}
         <div className="flex items-center gap-1.5">
@@ -89,14 +96,15 @@ const FilterPills = () => {
               <button
                 key={layer}
                 type="button"
-                onClick={() => {
-                  toggleDCLayer(layer);
-                  console.log(layer);
-                }}
-                className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
-                  ${isActive ? "bg-slate-700 border-slate-700 text-white" : "text-slate-700 border-gray-300 hover:bg-slate-50"}`}
+                onClick={() => toggleDCLayer(layer)}
+                className={`flex items-center justify-center rounded-full border p-1.5 text-slate-700 transition hover:cursor-pointer
+                  ${
+                    isActive
+                      ? "bg-slate-700 border-slate-700 text-white"
+                      : "border-gray-300 hover:bg-slate-50"
+                  }`}
               >
-                <FontAwesomeIcon icon={icon} className={`h-4 w-4 `} />
+                <FontAwesomeIcon icon={icon} className="h-4 w-4" />
               </button>
             );
           })}

@@ -1,5 +1,4 @@
 "use client";
-
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { SparkLineChart } from "@mui/x-charts/SparkLineChart";
@@ -12,7 +11,7 @@ import { useGetSnapshots } from "@/api/getSnapshot";
 import { getMetricByZone } from "@/lib/helper";
 import { HexLayerType, ZoneType } from "@shared/types";
 
-import { faFire, faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
+import { faFire, faLock, faLockOpen, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const formatHourLabel = (h: number) => {
@@ -28,6 +27,7 @@ export default function Slider() {
   useInterestingHours();
 
   const [isLocked, setIsLocked] = useState(false);
+  const [showSparkline, setShowSparkline] = useState(true); // <-- new
 
   // --- Interesting hours chips ---
   const presetHours = interestingHours.length ? interestingHours : [9, 18, 22];
@@ -52,22 +52,20 @@ export default function Slider() {
   const activitySeries: number[] = useMemo(() => {
     if (!bundle || selectedProviders.length === 0) return [];
 
-    const timestamps = Object.keys(bundle).sort(); // hourly
+    const timestamps = Object.keys(bundle).sort();
     return timestamps.map((ts) => {
       const snapshot = bundle[ts];
       const metricsByZone = getMetricByZone(snapshot, selectedProviders, HexLayerType.DELTA);
 
       const totalAbsDelta = Object.values(metricsByZone).reduce((sum, v) => sum + Math.abs(v), 0);
 
-      // rough trip estimate
-      return totalAbsDelta * 0.5;
+      return totalAbsDelta * 0.5; // rough trip estimate
     });
   }, [bundle, selectedProviders]);
 
   const hasActivity = activitySeries.length > 0;
 
   const maxVal = hasActivity && Math.max(...activitySeries) > 0 ? Math.max(...activitySeries) : 1;
-
   const minVal =
     hasActivity && Math.min(...activitySeries) < maxVal ? Math.min(...activitySeries) : 0;
 
@@ -83,10 +81,10 @@ export default function Slider() {
 
   return (
     <div className="flex flex-col space-y-2.5">
-      {/* Interesting hours row (always visible) */}
+      {/* Interesting hours row */}
       <div className="px-1 text-xs text-gray-700">
         <div className="flex items-center justify-center gap-2">
-          <div className="group absolute left-15 flex items-center">
+          <div className="group relative flex items-center">
             <FontAwesomeIcon
               icon={faFire}
               size="lg"
@@ -101,7 +99,7 @@ export default function Slider() {
             </div>
           </div>
 
-          <div className="flex gap-2 w-[195px] justify-center">
+          <div className="flex w-[195px] justify-center gap-2">
             {presetButtons.map((p) => (
               <button
                 key={p.value}
@@ -121,178 +119,178 @@ export default function Slider() {
         </div>
       </div>
 
-      {/* Sparkline box */}
-      <div
-        className={`relative rounded-md transition-all duration-500 overflow-hidden cursor-pointer ${"p-2 border-gray-300 border opacity-100 max-h-60"}`}
-        onClick={() => setIsLocked((prev) => !prev)}
-      >
-        {/* Header: title + day total chip */}
-        <div className="px-1 pb-1">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-700">
-                Activity
+      {/* Mobile: toggle button to show/hide sparkline */}
+      <div className="flex justify-center sm:hidden">
+        <button
+          type="button"
+          onClick={() => setShowSparkline((prev) => !prev)}
+          className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white/90 px-3 py-1 text-[11px] text-slate-700 shadow-sm"
+        >
+          <span>{showSparkline ? "Hide activity chart" : "Show activity chart"}</span>
+          <FontAwesomeIcon icon={showSparkline ? faChevronUp : faChevronDown} className="h-3 w-3" />
+        </button>
+      </div>
+
+      {/* Sparkline box (always on desktop, toggle on mobile) */}
+      <div className={showSparkline ? "" : "hidden sm:block"}>
+        <div
+          className="relative cursor-pointer overflow-hidden rounded-md border border-gray-300 p-2 transition-all duration-500"
+          onClick={() => setIsLocked((prev) => !prev)}
+        >
+          {/* Header: title + day total chip */}
+          <div className="px-1 pb-1">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-700">
+                  Activity
+                </div>
+                <div className="text-[10px] text-slate-500">Estimated trips per hour</div>
               </div>
-              <div className="text-[10px] text-slate-500">Estimated trips per hour</div>
-            </div>
 
-            {/* Day total chip (inline with title, top-right) */}
-            <div
-              className={`flex items-center rounded border px-2.5 py-[3px] font-mono text-[10px]
-                border-slate-300 bg-white/90 text-slate-700 
-                ${isLoadingSnapshots ? "opacity-70 blur-[0.5px] animate-pulse" : ""}`}
-            >
-              <span className="uppercase tracking-wide mr-1">Day total</span>
-              <span className="tabular-nums">
-                {hasActivity ? (
-                  <>≈ {Math.round(dayTotal).toLocaleString()} trips</>
-                ) : selectedProviders.length === 0 ? (
-                  <>Select a provider</>
-                ) : (
-                  <>No trip data</>
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Current hour pill (below header, centered) */}
-        <div className="flex justify-center pt-2">
-          <div
-            className={`inline-flex items-center justify-between rounded-md bg-slate-700 px-3 py-1.5 font-mono text-[11px] text-slate-50 shadow-sm
-              ${isLoadingSnapshots ? "opacity-70 blur-[0.5px] animate-pulse" : ""}`}
-          >
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-100">
-              {formatHourLabel(hour)}
-            </span>
-            <span className="text-[12px] leading-none ml-3">
-              {hasActivity && currentValue != null
-                ? `${Math.round(currentValue).toLocaleString()} trips`
-                : "–"}
-            </span>
-          </div>
-        </div>
-
-        {/* Sparkline area */}
-        <div className=" space-y-2 min-h-[110px]">
-          <>
-            {/* Y-axis max label */}
-            <div className="mb-1 flex justify-start px-1 text-[10px] text-slate-600">
-              <span
-                className={`${isLoadingSnapshots ? "blur-[1px] opacity-80" : ""}inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
+              <div
+                className={`flex items-center rounded border px-2.5 py-[3px] font-mono text-[10px]
+                  border-slate-300 bg-white/90 text-slate-700 
+                  ${isLoadingSnapshots ? "animate-pulse blur-[0.5px] opacity-70" : ""}`}
               >
-                {Math.round(yMax)}
+                <span className="mr-1 uppercase tracking-wide">Day total</span>
+                <span className="tabular-nums">
+                  {hasActivity ? (
+                    <>≈ {Math.round(dayTotal).toLocaleString()} trips</>
+                  ) : selectedProviders.length === 0 ? (
+                    <>Select a provider</>
+                  ) : (
+                    <>No trip data</>
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Current hour pill */}
+          <div className="flex justify-center pt-2">
+            <div
+              className={`inline-flex items-center justify-between rounded-md bg-slate-700 px-3 py-1.5 font-mono text-[11px] text-slate-50 shadow-sm
+                ${isLoadingSnapshots ? "animate-pulse blur-[0.5px] opacity-70" : ""}`}
+            >
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-100">
+                {formatHourLabel(hour)}
+              </span>
+              <span className="ml-3 text-[12px] leading-none">
+                {hasActivity && currentValue != null
+                  ? `${Math.round(currentValue).toLocaleString()} trips`
+                  : "–"}
               </span>
             </div>
+          </div>
 
-            <div
-              className={`relative h-[70px] w-full flex justify-center ${
-                isLoadingSnapshots ? "blur-[1px] opacity-80" : ""
-              }`}
+          {/* Sparkline area */}
+          <div className="min-h-[110px] space-y-2">
+            <>
+              {/* Y-axis max label */}
+              <div className="mb-1 flex justify-start px-1 text-[10px] text-slate-600">
+                <span
+                  className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums ${
+                    isLoadingSnapshots ? "blur-[1px] opacity-80" : ""
+                  }`}
+                >
+                  {Math.round(yMax)}
+                </span>
+              </div>
+
+              <div
+                className={`relative flex h-[70px] w-full justify-center ${
+                  isLoadingSnapshots ? "blur-[1px] opacity-80" : ""
+                }`}
+              >
+                <SparkLineChart
+                  data={activitySeries}
+                  height={70}
+                  width={260}
+                  yAxis={{ min: yMin, max: yMax }}
+                  color={"oklch(44.6% 0.043 257.281)"}
+                  showHighlight
+                  clipAreaOffset={{ top: 6, bottom: 6 }}
+                  axisHighlight={{ x: "line" }}
+                  margin={{ left: 4, right: 4, top: 6, bottom: 6 }}
+                  onHighlightedAxisChange={(axisItems) => {
+                    if (isLocked) return;
+                    const idx =
+                      axisItems.length === 0 ? null : (axisItems[0]?.dataIndex as number | null);
+                    if (idx != null) setHour(idx);
+                  }}
+                  highlightedAxis={
+                    hour == null ? [] : [{ axisId: "hour-axis", dataIndex: hour }]
+                  }
+                  xAxis={{
+                    id: "hour-axis",
+                    data: Array.from({ length: activitySeries.length }, (_, i) => i),
+                  }}
+                  sx={{
+                    [`& .${lineElementClasses.root}`]: {
+                      strokeWidth: 3,
+                      opacity: 1,
+                    },
+                    [`& .${chartsAxisHighlightClasses.root}`]: {
+                      stroke: "oklch(44.6% 0.043 257.281)",
+                      strokeDasharray: "none",
+                      strokeWidth: 2,
+                    },
+                  }}
+                  slotProps={{ lineHighlight: { r: 4 } }}
+                />
+              </div>
+
+              {/* Y-axis min label */}
+              <div className="mt-1 flex justify-start px-1 text-[10px] text-slate-600">
+                <span
+                  className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums ${
+                    isLoadingSnapshots ? "blur-[1px] opacity-80" : ""
+                  }`}
+                >
+                  {Math.round(yMin)}
+                </span>
+              </div>
+            </>
+          </div>
+
+          {/* Lock + helper text */}
+          <div className="mt-2 flex items-center justify-center gap-2 px-1 pb-1 text-[10px] text-slate-500">
+            <p className="leading-snug">
+              {isLocked
+                ? "Click anywhere in this box to unlock the hour."
+                : "Click anywhere in this box to lock the hour."}
+            </p>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLocked((prev) => !prev);
+              }}
+              className="absolute right-4 items-center gap-1 rounded-full border border-slate-300 bg-white/80 px-2 py-[2px] text-slate-700 shadow-sm"
             >
-              <SparkLineChart
-                data={activitySeries}
-                height={70}
-                width={260}
-                yAxis={{ min: yMin, max: yMax }}
-                color={"oklch(44.6% 0.043 257.281)"}
-                showHighlight
-                clipAreaOffset={{ top: 6, bottom: 6 }}
-                axisHighlight={{ x: "line" }}
-                margin={{ left: 4, right: 4, top: 6, bottom: 6 }}
-                onHighlightedAxisChange={(axisItems) => {
-                  if (isLocked) return;
-
-                  const idx =
-                    axisItems.length === 0 ? null : (axisItems[0]?.dataIndex as number | null);
-                  if (idx != null) setHour(idx);
-                }}
-                highlightedAxis={hour == null ? [] : [{ axisId: "hour-axis", dataIndex: hour }]}
-                xAxis={{
-                  id: "hour-axis",
-                  data: Array.from({ length: activitySeries.length }, (_, i) => i),
-                }}
-                sx={{
-                  [`& .${lineElementClasses.root}`]: {
-                    strokeWidth: 3,
-                    opacity: 1, // let blur handle the "loading" look
-                  },
-                  [`& .${chartsAxisHighlightClasses.root}`]: {
-                    stroke: "oklch(44.6% 0.043 257.281)",
-                    strokeDasharray: "none",
-                    strokeWidth: 2,
-                  },
-                }}
-                slotProps={{
-                  lineHighlight: { r: 4 },
-                }}
+              <FontAwesomeIcon
+                icon={isLocked ? faLock : faLockOpen}
+                className="cursor-pointer text-[10px]"
               />
-            </div>
-            {/* Y-axis min label */}
-            <div className="mt-1 flex justify-start px-1 text-[10px] text-slate-600">
-              <span
-                className={`${isLoadingSnapshots ? "blur-[1px] opacity-80" : ""}inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
-              >
-                {Math.round(yMin)}
-              </span>
-            </div>
-          </>
-        </div>
-
-        {/* Lock + helper text (bottom-left) */}
-        <div className="mt-2 flex items-center justify-center gap-2 px-1 pb-1 text-[10px] text-slate-500">
-          <p className="leading-snug">
-            {isLocked
-              ? "Click anywhere in this box to unlock the hour."
-              : "Click anywhere in this box to lock the hour."}
-          </p>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation(); // avoid double toggle with wrapper onClick
-              setIsLocked((prev) => !prev);
-            }}
-            className="absolute right-4 items-center gap-1 rounded-full border border-slate-300 bg-white/80 px-2 py-[2px] text-slate-700 shadow-sm"
-          >
-            <FontAwesomeIcon
-              icon={isLocked ? faLock : faLockOpen}
-              className="text-[10px] cursor-pointer"
-            />
-          </button>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Time + count pill (outside box, when sparkline hidden) */}
-      {/* <div className={`flex justify-center transition-all ${"opacity-0 max-h-0"}`}>
-        <div
-          className={`inline-flex items-center gap-2 rounded-md bg-slate-700 px-3 py-1.5 font-mono text-[11px] text-slate-50 shadow-sm
-            ${isLoadingSnapshots ? "opacity-70 blur-[0.5px] animate-pulse" : ""}`}
-        >
-          <span className="text-[12px] font-medium uppercase tracking-wide text-slate-200">
-            {formatHourLabel(hour)}
-          </span>
-          <span className="text-sm leading-none">
-            {hasActivity && currentValue != null
-              ? `${Math.round(currentValue).toLocaleString()} trips`
-              : "–"}
-          </span>
-        </div>
-      </div> */}
-
-      {/* Slider (visible when sparkline hidden) */}
-      {/* {!showSparkline && (
-        <div className="w-full flex justify-center">
+      {/* When sparkline is hidden: simple slider on mobile for hour control */}
+      {!showSparkline && (
+        <div className="flex w-full justify-center sm:hidden">
           <input
             type="range"
             min="0"
             max="23"
             step="1"
             value={hour}
-            onChange={(e) => setHour(parseInt(e.target.value))}
-            className="w-[260px] accent-slate-700 h-1.5 bg-gray-200/40 rounded-lg cursor-pointer"
+            onChange={(e) => setHour(parseInt(e.target.value, 10))}
+            className="h-1.5 w-[260px] cursor-pointer rounded-lg bg-gray-200/40 accent-slate-700"
           />
         </div>
-      )} */}
+      )}
     </div>
   );
 }
