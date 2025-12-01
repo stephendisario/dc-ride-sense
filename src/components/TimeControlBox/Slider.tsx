@@ -14,6 +14,7 @@ import { HexLayerType, ZoneType } from "@shared/types";
 
 import { faFire, faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useIsMdUp } from "@/hooks/useIsMdUp";
 
 const formatHourLabel = (h: number) => {
   const ampm = h >= 12 ? "PM" : "AM";
@@ -22,9 +23,11 @@ const formatHourLabel = (h: number) => {
 };
 
 export default function Slider() {
-  const { date, hour, setHour, interestingHours } = useView();
+  const { date, hour, setHour, interestingHours, activeIconButton } = useView();
   const { selectedProviders } = useProviderStore();
+  const [showInterestingTooltip, setShowInterestingTooltip] = useState(false);
 
+  const isMdUp = useIsMdUp();
   useInterestingHours();
 
   const [isLocked, setIsLocked] = useState(false);
@@ -86,14 +89,29 @@ export default function Slider() {
       {/* Interesting hours row (always visible) */}
       <div className="px-1 text-xs text-gray-700">
         <div className="flex items-center justify-center gap-2">
-          <div className="group absolute left-15 flex items-center">
-            <FontAwesomeIcon
-              icon={faFire}
-              size="lg"
-              className="cursor-pointer"
-              color="oklch(75% 0.183 55.934)"
-            />
-            <div className="pointer-events-none absolute bottom-full left-0 z-10 mb-1 w-60 rounded-md bg-slate-700 px-2 py-1 text-[10px] leading-snug text-slate-100 opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+          <div className="group relative flex items-center">
+            <button
+              type="button"
+              onClick={() => setShowInterestingTooltip((prev) => !prev)}
+              className="flex items-center justify-center"
+            >
+              <FontAwesomeIcon
+                icon={faFire}
+                size="lg"
+                className="cursor-pointer"
+                color="oklch(75% 0.183 55.934)"
+              />
+            </button>
+
+            <div
+              className={`
+          pointer-events-none absolute bottom-full left-0 z-10 mb-1 w-60
+          rounded-md bg-slate-700 px-2 py-1 text-[10px] leading-snug text-slate-100
+          shadow-md transition-opacity
+          opacity-0 group-hover:opacity-100
+          ${showInterestingTooltip ? "opacity-100" : ""}
+        `}
+            >
               <p className="mb-1 font-semibold text-[12px]">Interesting Hours</p>
               Calculated by scoring each hour based on how much movement happens and how
               concentrated that movement is. These are the hours with the strongest, most focused
@@ -108,11 +126,11 @@ export default function Slider() {
                 type="button"
                 onClick={() => setHour(p.value)}
                 className={`font-mono flex-1 px-2.5 py-0.5 rounded-full border transition text-xs hover:cursor-pointer
-                  ${
-                    hour === p.value
-                      ? "bg-slate-700 border-slate-900 text-slate-100"
-                      : "bg-white/70 border-gray-300 text-slate-700 hover:bg-slate-50"
-                  }`}
+            ${
+              hour === p.value
+                ? "bg-slate-700 border-slate-900 text-slate-100"
+                : "bg-white/70 border-gray-300 text-slate-700 hover:bg-slate-50"
+            }`}
               >
                 {p.label}
               </button>
@@ -123,8 +141,11 @@ export default function Slider() {
 
       {/* Sparkline box */}
       <div
-        className={`relative rounded-md transition-all duration-500 overflow-hidden cursor-pointer ${"p-2 border-gray-300 border opacity-100 max-h-60"}`}
-        onClick={() => setIsLocked((prev) => !prev)}
+        className={`${activeIconButton !== "SPARKLINE" && "hidden"} md:block relative rounded-md transition-all duration-500 overflow-hidden cursor-pointer ${"p-2 border-gray-300 border opacity-100 max-h-60"}`}
+        onClick={() => {
+          if (!isMdUp) return;
+          setIsLocked((prev) => !prev);
+        }}
       >
         {/* Header: title + day total chip */}
         <div className="px-1 pb-1">
@@ -240,7 +261,7 @@ export default function Slider() {
         </div>
 
         {/* Lock + helper text (bottom-left) */}
-        <div className="mt-2 flex items-center justify-center gap-2 px-1 pb-1 text-[10px] text-slate-500">
+        <div className="hidden mt-2 md:flex items-center justify-center gap-2 px-1 pb-1 text-[10px] text-slate-500">
           <p className="leading-snug">
             {isLocked
               ? "Click anywhere in this box to unlock the hour."

@@ -25,6 +25,8 @@ type ViewState = {
   setMonth: (m: Date) => void;
   activeIconButton: IconButton;
   setActiveIconButton: (button: IconButton) => void;
+  showIntro: boolean;
+  setShowIntro: (intro: boolean) => void;
 };
 
 export const useView = create<ViewState>((set) => ({
@@ -55,6 +57,8 @@ export const useView = create<ViewState>((set) => ({
     }),
   month: startOfMonth(new Date()),
   setMonth: (month) => set({ month }),
-  activeIconButton: "",
+  activeIconButton: "SPARKLINE",
   setActiveIconButton: (activeIconButton) => set({ activeIconButton }),
+  showIntro: false,
+  setShowIntro: (showIntro) => set({ showIntro }),
 }));

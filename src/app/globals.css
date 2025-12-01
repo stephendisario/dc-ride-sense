@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-md: 806px;
+  --breakpoint-lg: 1160px;
+}
+
 #root {
     position: absolute;
     top: 0;

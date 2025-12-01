@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Providers, HexLayerType, DCLayerType } from "@shared/types";
 import { useProviderStore } from "@/stores/provider";
 import { useView } from "@/stores/views";
-import { faBicycle, faTrainSubway } from "@fortawesome/free-solid-svg-icons";
+import { faBicycle, faTrainSubway, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DC_LAYERS } from "@shared/constants";
 import { useLayerVisibility } from "@/hooks/useLayerVisibility";
@@ -26,82 +27,105 @@ const providerColorClasses: Record<Providers, { selected: string; unselected: st
 const FilterPills = () => {
   const { activeHexLayer, activeDCLayers, toggleDCLayer } = useView();
   const { selectedProviders, toggleProvider, availableProviders } = useProviderStore();
+  const [isOpen, setIsOpen] = useState(false);
 
   useLayerVisibility();
 
-  return (
-    <div className="fixed top-4 left-1/2 z-20 -translate-x-1/2">
-      <div className="flex items-center gap-3 rounded-full border border-gray-300 bg-white/85 px-3 py-1 shadow-sm backdrop-blur-sm">
-        {/* Providers */}
-        <div className="flex gap-1.5 justify-center items-center">
-          {Object.values(Providers).map((provider) => {
-            const isAvailable = availableProviders.includes(provider);
-            const isChurnBlocked =
-              activeHexLayer === HexLayerType.CHURN && provider === Providers.LIME;
-            const isDisabled = !isAvailable || isChurnBlocked;
-            const isSelected = selectedProviders.includes(provider);
+  const pillsContent = (
+    <div className="h-[36px] md:h-full inline-flex items-center gap-3 rounded-full border border-gray-300 bg-white/85 px-3 py-1 shadow-sm backdrop-blur-sm">
+      {/* Providers */}
+      <div className="flex gap-1.5 justify-center items-center">
+        {Object.values(Providers).map((provider) => {
+          const isAvailable = availableProviders.includes(provider);
+          const isChurnBlocked =
+            activeHexLayer === HexLayerType.CHURN && provider === Providers.LIME;
+          const isDisabled = !isAvailable || isChurnBlocked;
+          const isSelected = selectedProviders.includes(provider);
 
-            const reason = !isAvailable
-              ? "No data for this provider before 11-15-2025."
-              : isChurnBlocked
-                ? "Churn is not available for Lime."
-                : "";
+          const reason = !isAvailable
+            ? "No data for this provider before 11-15-2025."
+            : isChurnBlocked
+              ? "Churn is not available for Lime."
+              : "";
 
-            const colorClasses = providerColorClasses[provider];
+          const colorClasses = providerColorClasses[provider];
 
-            return (
-              <div key={provider} className="flex">
-                <button
-                  type="button"
-                  disabled={isDisabled}
-                  onClick={() => !isDisabled && toggleProvider(provider)}
-                  className={`peer rounded-full px-2.5 py-0.5 text-[11px] font-medium border transition justify-center
-                      ${
-                        isDisabled
-                          ? "bg-gray-100 border-gray-200 text-gray-400 opacity-50"
-                          : isSelected
-                            ? `${colorClasses.selected} cursor-pointer`
-                            : `${colorClasses.unselected} cursor-pointer`
-                      }`}
-                >
-                  {provider}
-                </button>
-
-                {isDisabled && reason && (
-                  <div className="pointer-events-none absolute left-0 top-full mt-1 whitespace-nowrap rounded bg-slate-700 px-2 py-1 text-[10px] text-slate-100 opacity-0 peer-hover:opacity-100">
-                    {reason}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Divider */}
-        <span className="h-5 w-px bg-gray-200" />
-
-        {/* DC Layers icons */}
-        <div className="flex items-center gap-1.5">
-          {DC_LAYERS.map((layer) => {
-            const isActive = activeDCLayers.includes(layer);
-            const icon = layer === DCLayerType.METRO ? faTrainSubway : faBicycle;
-            return (
+          return (
+            <div key={provider} className="relative flex">
               <button
-                key={layer}
                 type="button"
-                onClick={() => {
-                  toggleDCLayer(layer);
-                  console.log(layer);
-                }}
-                className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
-                  ${isActive ? "bg-slate-700 border-slate-700 text-white" : "text-slate-700 border-gray-300 hover:bg-slate-50"}`}
+                disabled={isDisabled}
+                onClick={() => !isDisabled && toggleProvider(provider)}
+                className={`peer rounded-full px-2.5 py-0.5 text-[11px] font-medium border transition justify-center
+                  ${
+                    isDisabled
+                      ? "bg-gray-100 border-gray-200 text-gray-400 opacity-50"
+                      : isSelected
+                        ? `${colorClasses.selected} cursor-pointer`
+                        : `${colorClasses.unselected} cursor-pointer`
+                  }`}
               >
-                <FontAwesomeIcon icon={icon} className={`h-4 w-4 `} />
+                {provider}
               </button>
-            );
-          })}
-        </div>
+
+              {isDisabled && reason && (
+                <div className="pointer-events-none absolute left-0 top-full mt-1 whitespace-nowrap rounded bg-slate-700 px-2 py-1 text-[10px] text-slate-100 opacity-0 peer-hover:opacity-100">
+                  {reason}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* Divider */}
+      <span className="h-5 w-px bg-gray-200" />
+
+      {/* DC Layers icons */}
+      <div className="flex items-center gap-1.5">
+        {DC_LAYERS.map((layer) => {
+          const isActive = activeDCLayers.includes(layer);
+          const icon = layer === DCLayerType.METRO ? faTrainSubway : faBicycle;
+          return (
+            <button
+              key={layer}
+              type="button"
+              onClick={() => toggleDCLayer(layer)}
+              className={`flex w-8 h-8 items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
+                ${
+                  isActive
+                    ? "bg-slate-700 border-slate-700 text-white"
+                    : "text-slate-700 border-gray-300 hover:bg-slate-50"
+                }`}
+            >
+              <FontAwesomeIcon icon={icon} className="" />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="z-10 pointer-events-auto">
+      {/* Mobile: icon + slide-out pills to the right */}
+      <div className="flex items-center md:hidden gap-2">
+        <button
+          type="button"
+          aria-label="Filters"
+          onClick={() => setIsOpen((p) => !p)}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white/90 shadow-sm hover:bg-slate-50"
+        >
+          <span className="flex h-4 w-4 items-center justify-center">
+            <FontAwesomeIcon icon={faFilter} className="h-3.5 w-3.5 text-slate-700" />
+          </span>
+        </button>
+
+        {isOpen && <div className="max-w-[75vw]">{pillsContent}</div>}
+      </div>
+
+      {/* Desktop: always-visible pills */}
+      <div className="hidden md:inline-flex">{pillsContent}</div>
     </div>
   );
 };

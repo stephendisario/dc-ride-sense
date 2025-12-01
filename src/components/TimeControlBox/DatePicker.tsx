@@ -16,10 +16,10 @@ import {
   faChevronRight,
   faStar,
   faCalendarDay,
+  faChartLine,
 } from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "@shared/types";
-import Calendar, { DISABLED_DAYS } from "./Calendar";
-import EventsPanel from "./EventList";
+import { DISABLED_DAYS } from "./Calendar";
 
 const START = new Date(2025, 4, 1);
 const YESTERDAY = startOfDay(subDays(new Date(), 1));
@@ -49,34 +49,26 @@ export default function DatePicker() {
 
   return (
     <div className="space-y-3">
-      {/* Popovers */}
-      <div className={activeIconButton !== "EVENTS" ? "hidden" : ""}>
-        <EventsPanel />
-      </div>
-      <div className={activeIconButton !== "CALENDAR" ? "hidden" : ""}>
-        <Calendar />
-      </div>
-
       {/* Centered row */}
       <div className="flex justify-center">
         <div className="flex items-center justify-between w-full max-w-[360px] text-sm font-medium text-slate-700">
           {/* Left: sparkline icon, styled like Metro/Bike/Events pills */}
-          {/* <button
+          <button
             type="button"
             onClick={() => toggleIcon("SPARKLINE")}
-            className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
+            className={`w-8 h-8 flex md:hidden items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
               ${
-                activeIconButtons.includes("SPARKLINE")
+                activeIconButton === "SPARKLINE"
                   ? "bg-slate-700 border-slate-700 text-white"
                   : "text-slate-700 border-gray-300 bg-white/90 hover:bg-slate-50"
               }`}
           >
             <FontAwesomeIcon icon={faChartLine} className="h-4 w-4" />
-          </button> */}
+          </button>
 
           <button
             onClick={() => setDate(subDays(new Date(), 1))}
-            className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
+            className={`w-8 h-8 hidden md:flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
             ${
               isBefore(date, YESTERDAY)
                 ? "text-slate-700 border-gray-300 bg-white/90 hover:bg-slate-50"
@@ -129,7 +121,7 @@ export default function DatePicker() {
           <button
             type="button"
             onClick={() => toggleIcon("EVENTS")}
-            className={`flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
+            className={`w-8 h-8 flex items-center justify-center rounded-full border p-1.5 transition hover:cursor-pointer
               ${
                 activeIconButton === "EVENTS"
                   ? "bg-slate-700 border-slate-700 text-white"
