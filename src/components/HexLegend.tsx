@@ -62,15 +62,15 @@ const legendBody = (
           <span
             className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
           >
-            {max}
+            {max === DELTA_RANGE_MAX ? "+" : max}
           </span>
         </div>
         <div className=" flex items-start text-[10px] text-slate-600">
           <span
             className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
           >
-            {min}
-          </span>
+            {min === DELTA_RANGE_MIN ? "+" : min}
+            </span>
         </div>
       </div>
     </div>
@@ -201,7 +201,7 @@ const HexLegend = () => {
             >
               <span className="flex h-4 w-4 items-center justify-center">
                 {activeHexLayer === HexLayerType.DELTA ? (
-                  <span className="text-[14px] leading-none text-slate-700">Δ</span>
+                  <span className="text-[18px] leading-none text-slate-700">▲</span>
                 ) : (
                   <FontAwesomeIcon
                     icon={activeHexLayer === HexLayerType.DENSITY ? faGrip : faRightLeft}
