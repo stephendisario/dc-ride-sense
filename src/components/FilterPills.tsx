@@ -1,10 +1,8 @@
 "use client";
-
-import { useState } from "react";
 import { Providers, HexLayerType, DCLayerType } from "@shared/types";
 import { useProviderStore } from "@/stores/provider";
 import { useView } from "@/stores/views";
-import { faBicycle, faTrainSubway, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faBicycle, faTrainSubway } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DC_LAYERS } from "@shared/constants";
 import { useLayerVisibility } from "@/hooks/useLayerVisibility";
@@ -27,7 +25,6 @@ const providerColorClasses: Record<Providers, { selected: string; unselected: st
 const FilterPills = () => {
   const { activeHexLayer, activeDCLayers, toggleDCLayer } = useView();
   const { selectedProviders, toggleProvider, availableProviders } = useProviderStore();
-  const [isOpen, setIsOpen] = useState(false);
 
   useLayerVisibility();
 
@@ -110,7 +107,8 @@ const FilterPills = () => {
     <div className="z-10 pointer-events-auto">
       {/* Mobile: icon + slide-out pills to the right */}
       <div className="flex items-center md:hidden gap-2">
-        <button
+        <div className="max-w-[75vw] overflow-x-auto">{pillsContent}</div>
+        {/* <button
           type="button"
           aria-label="Filters"
           onClick={() => setIsOpen((p) => !p)}
@@ -121,7 +119,7 @@ const FilterPills = () => {
           </span>
         </button>
 
-        {isOpen && <div className="max-w-[75vw]">{pillsContent}</div>}
+        {isOpen && <div className="max-w-[75vw]">{pillsContent}</div>} */}
       </div>
 
       {/* Desktop: always-visible pills */}

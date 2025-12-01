@@ -69,7 +69,7 @@ const legendBody = (
           <span
             className={`inline-flex items-center rounded-full bg-slate-100 px-1.5 py-[1px] font-mono tabular-nums`}
           >
-            {min === DELTA_RANGE_MIN ? "+" : min}
+            {min === DELTA_RANGE_MIN ? "-" : min}
             </span>
         </div>
       </div>
