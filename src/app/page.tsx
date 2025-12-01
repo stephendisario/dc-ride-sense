@@ -106,13 +106,13 @@ const App = () => {
           <div className="absolute left-0 top-0 md:left-3 md:top-3">
             <Header />
           </div>
-          <div className="absolute top-3 right-auto md:right-3 left-1.5 top-[15%] -translate-y-[15%] md:left-auto md:top-auto md:translate-y-0 lg:left-1/2 lg:right-auto lg:-translate-x-1/2">
+          <div className="absolute top-3 right-auto md:right-3 left-1/2 top-3 -translate-x-1/2 md:left-auto md:top-auto md:translate-x-0 lg:left-1/2 lg:right-auto lg:-translate-x-1/2">
             <FilterPills />
           </div>
           <div className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-3 bottom-3">
             <TimeControlBox />
           </div>
-          <div className="absolute bottom-3 right-auto md:right-3 left-1.5 md:w-[420px] top-[43%] -translate-y-[43%] md:left-auto md:top-auto md:translate-y-0 lg:left-1/2 lg:right-auto lg:-translate-x-1/2">
+          <div className="absolute bottom-3 right-auto md:right-3 left-3 md:w-[420px] top-[30%] -translate-y-[30%] md:left-auto md:top-auto md:translate-y-0 lg:left-1/2 lg:right-auto lg:-translate-x-1/2">
             <HexLegend />
           </div>
         </div>

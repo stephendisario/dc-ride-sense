@@ -260,7 +260,7 @@ const HexLegend = () => {
               <div
                 className="
                   absolute left-full top-1/2 -translate-y-1/2 ml-2
-                  w-80 rounded-md bg-slate-700 px-3 py-2
+                  w-60 rounded-md bg-slate-700 px-3 py-2
                   text-[11px] leading-snug text-slate-100 shadow-md
                 "
               >
