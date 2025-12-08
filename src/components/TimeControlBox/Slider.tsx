@@ -9,8 +9,7 @@ import { useView } from "@/stores/views";
 import { useInterestingHours } from "@/hooks/useInterestingHours";
 import { useProviderStore } from "@/stores/provider";
 import { useGetSnapshots } from "@/api/getSnapshot";
-import { getMetricByZone } from "@/lib/helper";
-import { HexLayerType, ZoneType } from "@shared/types";
+import { HexLayerType, Providers, Snapshot, ZoneType } from "@shared/types";
 
 import { faFire, faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -52,18 +51,33 @@ export default function Slider() {
 
   const isLoadingSnapshots = isLoading || isFetching;
 
+  const estimateTripsForSnapshot = (snapshot: Snapshot, providers: Providers[]): number => {
+    let totalAbsDelta = 0;
+
+    for (const provider of providers) {
+      // eslint-disable-next-line
+      if (provider === ("TOTAL" as any)) continue;
+      const providerZones = snapshot?.[provider] ?? {};
+
+      for (const metrics of Object.values(providerZones)) {
+        const delta = metrics[HexLayerType.DELTA];
+        totalAbsDelta += Math.abs(delta);
+      }
+    }
+
+    const trips = totalAbsDelta * 0.5;
+
+    return trips;
+  };
+
   const activitySeries: number[] = useMemo(() => {
     if (!bundle || selectedProviders.length === 0) return [];
 
     const timestamps = Object.keys(bundle).sort(); // hourly
+
     return timestamps.map((ts) => {
       const snapshot = bundle[ts];
-      const metricsByZone = getMetricByZone(snapshot, selectedProviders, HexLayerType.DELTA);
-
-      const totalAbsDelta = Object.values(metricsByZone).reduce((sum, v) => sum + Math.abs(v), 0);
-
-      // rough trip estimate
-      return totalAbsDelta * 0.5;
+      return estimateTripsForSnapshot(snapshot, selectedProviders);
     });
   }, [bundle, selectedProviders]);
 
