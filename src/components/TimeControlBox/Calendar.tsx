@@ -1,6 +1,6 @@
 "use client";
 import { DayPicker } from "react-day-picker";
-import { subDays, startOfMonth, isSameMonth, startOfDay, getMonth } from "date-fns";
+import { subDays, startOfMonth, isSameMonth, startOfDay, getMonth, isBefore, isAfter } from "date-fns";
 import { useView } from "@/stores/views";
 
 const START = new Date(2025, 4, 1);
@@ -26,8 +26,13 @@ export default function Calendar() {
 
   const handleDayPickerMonth = (d?: Date) => {
     if (!d) return;
-    if (getMonth(d) > getMonth(END) || getMonth(d) < getMonth(START)) return;
-    setMonth(d);
+  
+    const nextMonth = startOfMonth(d);
+  
+    if (isBefore(nextMonth, startOfMonth(START))) return;
+    if (isAfter(nextMonth, startOfMonth(END))) return;
+  
+    setMonth(nextMonth);
   };
 
   return (
