@@ -1,6 +1,6 @@
 "use client";
 import { DayPicker } from "react-day-picker";
-import { subDays, startOfMonth, isSameMonth, startOfDay, getMonth, isBefore, isAfter } from "date-fns";
+import { subDays, startOfMonth, isSameMonth, startOfDay, isBefore, isAfter } from "date-fns";
 import { useView } from "@/stores/views";
 
 const START = new Date(2025, 4, 1);
